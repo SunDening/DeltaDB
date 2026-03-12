@@ -18,7 +18,7 @@ string getTimeStr() {
     return oss.str();
 }
 
-WAL::WAL(const string &wal_dir, const string &log_dir, const size_t simp_thd)
+Wal::Wal(const string &wal_dir, const string &log_dir, const size_t simp_thd)
     : wal_file_dir(wal_dir), log_file_dir(log_dir),
       simplify_threshold(simp_thd), count(0), wal_manifest(wal_dir) {
 
@@ -44,7 +44,7 @@ WAL::WAL(const string &wal_dir, const string &log_dir, const size_t simp_thd)
     log("[WAL::WAL] : ---------- WAL START ----------");
 }
 
-WAL::~WAL() {
+Wal::~Wal() {
     if (wal_out.is_open())
         wal_out.close();
     flush_log();
@@ -54,11 +54,11 @@ WAL::~WAL() {
     log("[WAL::WAL] : ---------- WAL OVER ----------");
 }
 
-uint32_t WAL::computeCRC(const string &data) {
+uint32_t Wal::computeCRC(const string &data) {
     return crc32(0, reinterpret_cast<const Bytef *>(data.data()), data.size());
 }
 
-void WAL::writeWAL(const string &op, const string &key, const string &value) {
+void Wal::writeWAL(const string &op, const string &key, const string &value) {
     lock_guard<mutex> wal_lock(wal_mutex);
     if (!wal_out.is_open()) {
         log("[WAL::writeWAL] : Failed to open " + wal_file_path);
@@ -81,7 +81,7 @@ void WAL::writeWAL(const string &op, const string &key, const string &value) {
         simplify();
 }
 
-bool WAL::writeBatWAL(const unordered_map<string, string> &put_buff) {
+bool Wal::writeBatWAL(const unordered_map<string, string> &put_buff) {
     lock_guard<mutex> wal_lock(wal_mutex);
     if (!wal_out.is_open()) {
         log("[WAL::writeBatWAL] : Failed to open " + wal_file_path);
@@ -101,7 +101,7 @@ bool WAL::writeBatWAL(const unordered_map<string, string> &put_buff) {
     return true;
 }
 
-void WAL::clearWAL() {
+void Wal::clearWAL() {
     if (wal_out.is_open()) {
         wal_out.flush();
         wal_out.close();
@@ -123,7 +123,7 @@ void WAL::clearWAL() {
  * 1. 获取归档的wal的列表，按由旧到新（name递增排序）
  * 2. 每个wal恢复成一个immune_mem，按<wal_name, immu_mem>加入参数列表
  */
-void WAL::recover_unflushed(shared_ptr<MemTableManager> &mem_manager) {
+void Wal::recover_unflushed(shared_ptr<MemTableManager> &mem_manager) {
     // 获取归档的wal列表（不含wal_current.log）(已按从旧到新排序)
     vector<std::string> pending_wals = wal_manifest.get_pending_wals();
     for (const auto &pending_wal : pending_wals) {
@@ -170,7 +170,7 @@ void WAL::recover_unflushed(shared_ptr<MemTableManager> &mem_manager) {
 }
 
 // 该函数仅恢复当前活跃的wal_current.log，对于未刷盘的wal，用另一个函数恢复
-void WAL::recover_current(shared_ptr<MemTable> &active_memtable) {
+void Wal::recover_current(shared_ptr<MemTable> &active_memtable) {
     lock_guard<mutex> wal_lock(wal_mutex);
 
     ifstream wal_in(wal_file_path);
@@ -214,7 +214,7 @@ void WAL::recover_current(shared_ptr<MemTable> &active_memtable) {
     wal_in.close();
 }
 
-void WAL::simplify() {
+void Wal::simplify() {
     wal_out.flush();
     wal_out.close();
 
@@ -274,7 +274,7 @@ void WAL::simplify() {
     }
 }
 
-string WAL::rotate() {
+string Wal::rotate() {
     wal_out.flush();
     wal_out.close();
 
@@ -293,11 +293,11 @@ string WAL::rotate() {
     return next_wal_name; 
 }
 
-void WAL::remove_wal(const std::string& wal_name) {
+void Wal::remove_wal(const std::string& wal_name) {
     wal_manifest.remove_wal(wal_name);
 }
 
-string WAL::build_line_with_crc(const string &op, const string &key,
+string Wal::build_line_with_crc(const string &op, const string &key,
                                 const string &value) {
     string raw = op + " " + key + " " + value;
     uLong crc = crc32(0L, Z_NULL, 0);
@@ -305,7 +305,7 @@ string WAL::build_line_with_crc(const string &op, const string &key,
     return raw + " " + to_string(crc);
 }
 
-bool WAL::parse_line_with_crc(const string &line, string &op, string &key,
+bool Wal::parse_line_with_crc(const string &line, string &op, string &key,
                               string &value) {
     istringstream iss(line);
     string data, crc_str;
@@ -328,7 +328,7 @@ bool WAL::parse_line_with_crc(const string &line, string &op, string &key,
     }
 }
 
-void WAL::log(const string &msg) {
+void Wal::log(const string &msg) {
     lock_guard<mutex> log_lock(log_mutex);
     log_buffer << getCurrentTime() << "    " << msg << "\n";
     log_line_count++;
@@ -336,7 +336,7 @@ void WAL::log(const string &msg) {
         flush_log();
 }
 
-void WAL::flush_log() {
+void Wal::flush_log() {
     if (!log_file_stream.is_open())
         return;
     log_file_stream << log_buffer.str();

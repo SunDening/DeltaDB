@@ -208,17 +208,17 @@ db_cli/fast:
 .PHONY : db_cli/fast
 
 #=============================================================================
-# Target rules for targets named deltadb_test
+# Target rules for targets named test
 
 # Build rule for target.
-deltadb_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 deltadb_test
-.PHONY : deltadb_test
+test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test
+.PHONY : test
 
 # fast build rule for target.
-deltadb_test/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/build
-.PHONY : deltadb_test/fast
+test/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/build
+.PHONY : test/fast
 
 # Help Target
 help:
@@ -234,8 +234,8 @@ help:
 	@echo "... db_sst"
 	@echo "... db_wal"
 	@echo "... deltadb"
-	@echo "... deltadb_test"
 	@echo "... spdlog"
+	@echo "... test"
 .PHONY : help
 
 

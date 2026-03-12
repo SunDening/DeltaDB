@@ -117,66 +117,42 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-test/CMakeFiles/deltadb_test.dir/rule:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/deltadb_test.dir/rule
-.PHONY : test/CMakeFiles/deltadb_test.dir/rule
+test/CMakeFiles/test.dir/rule:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/test.dir/rule
+.PHONY : test/CMakeFiles/test.dir/rule
 
 # Convenience name for target.
-deltadb_test: test/CMakeFiles/deltadb_test.dir/rule
-.PHONY : deltadb_test
+test: test/CMakeFiles/test.dir/rule
+.PHONY : test
 
 # fast build rule for target.
-deltadb_test/fast:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/build
-.PHONY : deltadb_test/fast
+test/fast:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/build
+.PHONY : test/fast
 
-test.o: test.cpp.o
-.PHONY : test.o
-
-# target to build an object file
-test.cpp.o:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test.cpp.o
-.PHONY : test.cpp.o
-
-test.i: test.cpp.i
-.PHONY : test.i
-
-# target to preprocess a source file
-test.cpp.i:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test.cpp.i
-.PHONY : test.cpp.i
-
-test.s: test.cpp.s
-.PHONY : test.s
-
-# target to generate assembly for a file
-test.cpp.s:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test.cpp.s
-.PHONY : test.cpp.s
-
-test_spdlog.o: test_spdlog.cpp.o
-.PHONY : test_spdlog.o
+test_xml_conf.o: test_xml_conf.cpp.o
+.PHONY : test_xml_conf.o
 
 # target to build an object file
-test_spdlog.cpp.o:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test_spdlog.cpp.o
-.PHONY : test_spdlog.cpp.o
+test_xml_conf.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.o
+.PHONY : test_xml_conf.cpp.o
 
-test_spdlog.i: test_spdlog.cpp.i
-.PHONY : test_spdlog.i
+test_xml_conf.i: test_xml_conf.cpp.i
+.PHONY : test_xml_conf.i
 
 # target to preprocess a source file
-test_spdlog.cpp.i:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test_spdlog.cpp.i
-.PHONY : test_spdlog.cpp.i
+test_xml_conf.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.i
+.PHONY : test_xml_conf.cpp.i
 
-test_spdlog.s: test_spdlog.cpp.s
-.PHONY : test_spdlog.s
+test_xml_conf.s: test_xml_conf.cpp.s
+.PHONY : test_xml_conf.s
 
 # target to generate assembly for a file
-test_spdlog.cpp.s:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/deltadb_test.dir/build.make test/CMakeFiles/deltadb_test.dir/test_spdlog.cpp.s
-.PHONY : test_spdlog.cpp.s
+test_xml_conf.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.s
+.PHONY : test_xml_conf.cpp.s
 
 # Help Target
 help:
@@ -186,13 +162,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... deltadb_test"
-	@echo "... test.o"
-	@echo "... test.i"
-	@echo "... test.s"
-	@echo "... test_spdlog.o"
-	@echo "... test_spdlog.i"
-	@echo "... test_spdlog.s"
+	@echo "... test"
+	@echo "... test_xml_conf.o"
+	@echo "... test_xml_conf.i"
+	@echo "... test_xml_conf.s"
 .PHONY : help
 
 

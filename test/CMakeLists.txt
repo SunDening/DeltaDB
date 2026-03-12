@@ -3,10 +3,10 @@ enable_testing()
 
 file(GLOB TEST_SOURCES *.cpp)
 
-add_executable(deltadb_test ${TEST_SOURCES})
+add_executable(test ${TEST_SOURCES})
 
 
-target_link_libraries(deltadb_test
+target_link_libraries(test
     PRIVATE
         DeltaDB::common
         DeltaDB::wal
@@ -17,4 +17,4 @@ target_link_libraries(deltadb_test
 
 
 include(GoogleTest)
-gtest_discover_tests(deltadb_test)
+gtest_discover_tests(test)

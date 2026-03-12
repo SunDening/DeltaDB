@@ -23,6 +23,6 @@
 /home/knight/cpp/DeltaDB_series/DeltaDB/build/app/cli/CMakeFiles/db_cli.dir
 /home/knight/cpp/DeltaDB_series/DeltaDB/build/app/cli/CMakeFiles/edit_cache.dir
 /home/knight/cpp/DeltaDB_series/DeltaDB/build/app/cli/CMakeFiles/rebuild_cache.dir
-/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/CMakeFiles/deltadb_test.dir
+/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/CMakeFiles/test.dir
 /home/knight/cpp/DeltaDB_series/DeltaDB/build/test/CMakeFiles/edit_cache.dir
 /home/knight/cpp/DeltaDB_series/DeltaDB/build/test/CMakeFiles/rebuild_cache.dir

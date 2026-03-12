@@ -75,8 +75,8 @@ else
     echo -e "  ${YELLOW}⚠ 主程序未生成${NC}"
 fi
 
-if [ -f "bin/deltadb_test" ]; then
-    echo -e "  ${GREEN}✓ 测试程序: bin/deltadb_test${NC}"
+if [ -f "bin/test" ]; then
+    echo -e "  ${GREEN}✓ 测试程序: bin/test${NC}"
 else
     echo -e "  ${YELLOW}⚠ 测试程序未生成${NC}"
 fi
@@ -86,5 +86,5 @@ echo -e "${GREEN}🎉 构建完成！${NC}"
 echo ""
 echo "使用方式:"
 echo "  运行主程序:  ./build/bin/deltadb"
-echo "  运行测试:    ./build/bin/deltadb_test"
+echo "  运行测试:    ./build/bin/test"
 echo "  清理构建:    rm -rf build"

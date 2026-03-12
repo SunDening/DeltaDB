@@ -1,7 +1,5 @@
 #include "kv_core.h"
 
-using namespace std;
-
 Little_kv::Little_kv(const string &sst_dir_path,
                      const size_t memtable_threshold,
                      const size_t compact_threshold, const size_t max_size, const size_t per_kv_size,
@@ -59,7 +57,6 @@ Little_kv::~Little_kv() {
 }
 
 void Little_kv::Init_data() {
-    // TODO  恢复未刷盘的wal至immune_mem，并触发刷盘
     wal.recover_unflushed(mem_manager);
     wal.recover_current(active_memtable);  // 恢复当前活跃的wal_current.log到active_mem
 }

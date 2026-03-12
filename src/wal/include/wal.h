@@ -1,42 +1,44 @@
 #pragma once
 
+#include <zlib.h>
+#include <chrono>
+#include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <unordered_map>
-#include <mutex>
-#include <memory>
-#include <chrono>
-#include <iomanip>
-#include <filesystem>
-#include <zlib.h>
 
 #include "memtable.h"
-#include "wal_manifest.h"
 #include "memtable_manager.h"
+#include "wal_manifest.h"
 
 using namespace std;
 
-class WAL {
-public:
-    WAL(const string& wal_dir, const string& log_dir, const size_t simp_thd);
-    ~WAL();
+class Wal {
+   public:
+    Wal(const string& wal_dir, const string& log_dir, const size_t simp_thd);
+    ~Wal();
+
+    typedef std::shared_ptr<Wal> ptr;
 
     void writeWAL(const string& op, const string& key, const string& value);
     bool writeBatWAL(const unordered_map<string, string>& put_buff);
 
-    void recover_unflushed(shared_ptr<MemTableManager> &mem_manager);
+    void recover_unflushed(shared_ptr<MemTableManager>& mem_manager);
     void recover_current(shared_ptr<MemTable>& active_memtable);
 
     void clearWAL();
-    string rotate();  // wal切换：wal_current.log改名并归档，并加入immutable_queue
+    string rotate();                               // wal切换：wal_current.log改名并归档，并加入immutable_queue
     void remove_wal(const std::string& wal_name);  // 移除刷盘完成的wal
     void simplify();
     void log(const string& msg);
     void flush_log();
     uint32_t computeCRC(const string& data);
 
-private:
+   private:
     string wal_file_path;
     string log_file_path;
     string wal_file_dir;

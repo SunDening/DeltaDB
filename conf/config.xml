@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+  <!--log config-->
+  <log>
+    <!--identify path of log file-->
+    <log_path>./out/logs/</log_path>
+    <log_base_name>info.log</log_base_name>
+
+    <!--identify max size of single log file, MB-->
+    <log_max_file_size>10</log_max_file_size>
+    <log_max_file_num>3</log_max_file_num>
+  </log>
+
+  <wal>
+    <!--identify path of wal file-->
+    <wal_path>./out/wals/</wal_path>
+    <wal_base_name>00000.wal</wal_base_name>
+
+    <!--identify max size of single wal file-->
+    <wal_max_file_size>10</wal_max_file_size>
+  </wal>
+</root>

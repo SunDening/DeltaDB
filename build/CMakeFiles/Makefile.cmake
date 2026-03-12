@@ -153,5 +153,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "src/kv/CMakeFiles/db_kv.dir/DependInfo.cmake"
   "app/CMakeFiles/deltadb.dir/DependInfo.cmake"
   "app/cli/CMakeFiles/db_cli.dir/DependInfo.cmake"
-  "test/CMakeFiles/deltadb_test.dir/DependInfo.cmake"
+  "test/CMakeFiles/test.dir/DependInfo.cmake"
   )
