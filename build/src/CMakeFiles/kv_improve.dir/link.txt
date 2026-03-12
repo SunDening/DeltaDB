@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_improve.a CMakeFiles/kv_improve.dir/kv_improve/impls/BloomFilter.cpp.o CMakeFiles/kv_improve.dir/kv_improve/impls/Little_kv.cpp.o CMakeFiles/kv_improve.dir/kv_improve/impls/ManifestManager.cpp.o CMakeFiles/kv_improve.dir/kv_improve/impls/MemTable.cpp.o CMakeFiles/kv_improve.dir/kv_improve/impls/WAL.cpp.o
-/usr/bin/ranlib libkv_improve.a

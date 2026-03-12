@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_levels_sst.a CMakeFiles/kv_levels_sst.dir/kv_levels_sst/impls/Little_kv.cpp.o CMakeFiles/kv_levels_sst.dir/kv_levels_sst/impls/ManifestManager.cpp.o CMakeFiles/kv_levels_sst.dir/kv_levels_sst/impls/MemTable.cpp.o
-/usr/bin/ranlib libkv_levels_sst.a

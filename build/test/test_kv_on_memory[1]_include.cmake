@@ -1,5 +1,0 @@
-if(EXISTS "/home/knight/cpp_pros/little_kv/build/test/test_kv_on_memory[1]_tests.cmake")
-  include("/home/knight/cpp_pros/little_kv/build/test/test_kv_on_memory[1]_tests.cmake")
-else()
-  add_test(test_kv_on_memory_NOT_BUILT test_kv_on_memory_NOT_BUILT)
-endif()

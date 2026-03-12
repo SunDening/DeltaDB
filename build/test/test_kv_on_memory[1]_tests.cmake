@@ -1,7 +1,0 @@
-add_test([=[Little_kvTest.Put]=]  /home/knight/cpp_pros/little_kv/build/test/test_kv_on_memory [==[--gtest_filter=Little_kvTest.Put]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[Little_kvTest.Put]=]  PROPERTIES WORKING_DIRECTORY /home/knight/cpp_pros/little_kv/build/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-add_test([=[Little_kvTest.Del]=]  /home/knight/cpp_pros/little_kv/build/test/test_kv_on_memory [==[--gtest_filter=Little_kvTest.Del]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[Little_kvTest.Del]=]  PROPERTIES WORKING_DIRECTORY /home/knight/cpp_pros/little_kv/build/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-add_test([=[Little_kvTest.Put2]=]  /home/knight/cpp_pros/little_kv/build/test/test_kv_on_memory [==[--gtest_filter=Little_kvTest.Put2]==] --gtest_also_run_disabled_tests)
-set_tests_properties([=[Little_kvTest.Put2]=]  PROPERTIES WORKING_DIRECTORY /home/knight/cpp_pros/little_kv/build/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-set(  test_kv_on_memory_TESTS Little_kvTest.Put Little_kvTest.Del Little_kvTest.Put2)

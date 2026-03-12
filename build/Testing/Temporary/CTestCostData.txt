@@ -1,5 +1,0 @@
-Little_kvTest.Put 2 0.00179893
-Little_kvTest.Del 2 0.00191273
-Little_kvTest.Put2 2 0.00108474
-FileTest.Put 5 0.000639088
----

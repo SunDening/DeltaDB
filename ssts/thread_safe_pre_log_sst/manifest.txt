@@ -1,3 +1,0 @@
-L1 0 L1_sst_0.sst a a
-L1 1 L1_sst_1.sst b n
-L1 2 L1_sst_2.sst w w

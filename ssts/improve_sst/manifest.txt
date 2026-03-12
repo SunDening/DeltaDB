@@ -1,4 +1,0 @@
-0 2 L0_sst_2.sst bjm buff 35
-0 3 L0_sst_3.sst bench but 45
-1 1 L1_sst_1.sst baby boy 48
-1 2 L1_sst_2.sst bug mountain 43

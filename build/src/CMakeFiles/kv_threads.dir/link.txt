@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_threads.a CMakeFiles/kv_threads.dir/kv_threads/impls/BloomFilter.cpp.o CMakeFiles/kv_threads.dir/kv_threads/impls/Little_kv.cpp.o CMakeFiles/kv_threads.dir/kv_threads/impls/ManifestManager.cpp.o CMakeFiles/kv_threads.dir/kv_threads/impls/MemTable.cpp.o CMakeFiles/kv_threads.dir/kv_threads/impls/WAL.cpp.o
-/usr/bin/ranlib libkv_threads.a

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libcli.a CMakeFiles/cli.dir/cli/impls/kv_cli.cpp.o
-/usr/bin/ranlib libcli.a

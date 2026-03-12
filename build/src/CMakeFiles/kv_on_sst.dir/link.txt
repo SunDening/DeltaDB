@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_on_sst.a CMakeFiles/kv_on_sst.dir/kv_on_sst/impls/Little_kv.cpp.o CMakeFiles/kv_on_sst.dir/kv_on_sst/impls/MemTable.cpp.o
-/usr/bin/ranlib libkv_on_sst.a

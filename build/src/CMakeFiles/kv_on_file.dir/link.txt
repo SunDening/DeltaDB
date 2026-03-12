@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_on_file.a CMakeFiles/kv_on_file.dir/kv_on_file/impls/Little_kv.cpp.o
-/usr/bin/ranlib libkv_on_file.a

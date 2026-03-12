@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_on_skiplist.a CMakeFiles/kv_on_skiplist.dir/kv_on_skiplist/impls/Little_kv.cpp.o CMakeFiles/kv_on_skiplist.dir/kv_on_skiplist/impls/SkipList.cpp.o
-/usr/bin/ranlib libkv_on_skiplist.a

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_levels_bloom.a CMakeFiles/kv_levels_bloom.dir/kv_levels_bloom/impls/BloomFilter.cpp.o CMakeFiles/kv_levels_bloom.dir/kv_levels_bloom/impls/Little_kv.cpp.o CMakeFiles/kv_levels_bloom.dir/kv_levels_bloom/impls/ManifestManager.cpp.o CMakeFiles/kv_levels_bloom.dir/kv_levels_bloom/impls/MemTable.cpp.o
-/usr/bin/ranlib libkv_levels_bloom.a

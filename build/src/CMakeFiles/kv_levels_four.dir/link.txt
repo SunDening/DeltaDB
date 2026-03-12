@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_levels_four.a CMakeFiles/kv_levels_four.dir/kv_levels_four/impls/Little_kv.cpp.o CMakeFiles/kv_levels_four.dir/kv_levels_four/impls/ManifestManager.cpp.o CMakeFiles/kv_levels_four.dir/kv_levels_four/impls/MemTable.cpp.o
-/usr/bin/ranlib libkv_levels_four.a

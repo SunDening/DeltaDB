@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/test_kv_on_wal.dir/test_wal.cpp.o -o test_kv_on_wal  -lkv_on_wal /usr/lib/x86_64-linux-gnu/libgtest_main.a /usr/lib/x86_64-linux-gnu/libgtest.a 

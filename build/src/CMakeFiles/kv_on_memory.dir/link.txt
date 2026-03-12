@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_on_memory.a CMakeFiles/kv_on_memory.dir/kv_on_memory/impls/Little_kv.cpp.o
-/usr/bin/ranlib libkv_on_memory.a

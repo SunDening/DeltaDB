@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/main_kv.dir/main.cpp.o -o main_kv  ../src/libcli.a ../src/libkv_alpha.a /usr/lib/x86_64-linux-gnu/libxxhash.so /usr/lib/x86_64-linux-gnu/libsnappy.so.1.1.10 /usr/lib/x86_64-linux-gnu/libz.so 

@@ -1,4 +1,0 @@
-L3 0 L3_sst_0.sst b u
-L1 0 L1_sst_0.sst a a
-L1 1 L1_sst_1.sst m q
-L1 2 L1_sst_2.sst t t

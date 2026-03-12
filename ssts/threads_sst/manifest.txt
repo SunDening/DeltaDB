@@ -1,8 +1,0 @@
-1 5 L1_sst_5.sst p u 38
-0 6 L0_sst_6.sst a y 44
-2 0 L2_sst_0.sst d d 10
-2 1 L2_sst_1.sst a b 46
-0 7 L0_sst_7.sst a p 48
-1 7 L1_sst_7.sst m m 47
-1 8 L1_sst_8.sst n s 34
-2 2 L2_sst_2.sst c c 12

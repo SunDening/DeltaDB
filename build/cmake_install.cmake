@@ -1,4 +1,4 @@
-# Install script for directory: /home/knight/cpp_pros/little_kv
+# Install script for directory: /home/knight/cpp/DeltaDB_series/DeltaDB
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -12,7 +12,7 @@ if(NOT DEFINED CMAKE_INSTALL_CONFIG_NAME)
     string(REGEX REPLACE "^[^A-Za-z0-9_]+" ""
            CMAKE_INSTALL_CONFIG_NAME "${BUILD_TYPE}")
   else()
-    set(CMAKE_INSTALL_CONFIG_NAME "")
+    set(CMAKE_INSTALL_CONFIG_NAME "Release")
   endif()
   message(STATUS "Install configuration: \"${CMAKE_INSTALL_CONFIG_NAME}\"")
 endif()
@@ -43,11 +43,23 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for each subdirectory.
-  include("/home/knight/cpp_pros/little_kv/build/src/cmake_install.cmake")
-  include("/home/knight/cpp_pros/little_kv/build/app/cmake_install.cmake")
-  include("/home/knight/cpp_pros/little_kv/build/test/cmake_install.cmake")
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/_deps/spdlog-build/cmake_install.cmake")
+endif()
 
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/app/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -58,5 +70,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/knight/cpp_pros/little_kv/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/knight/cpp/DeltaDB_series/DeltaDB/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

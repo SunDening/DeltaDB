@@ -1,2 +1,0 @@
-/usr/bin/ar qc libkv_meta.a CMakeFiles/kv_meta.dir/kv_meta/impls/BloomFilter.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/CompactionManager.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/Little_kv.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/ManifestManager.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/MemTable.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/SnappyCompressor.cpp.o CMakeFiles/kv_meta.dir/kv_meta/impls/WAL.cpp.o
-/usr/bin/ranlib libkv_meta.a
