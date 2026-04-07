@@ -72,5 +72,15 @@
         "shared_mutex": "cpp",
         "ranges": "cpp",
         "valarray": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "deltadb",
+        "malloc",
+        "Memtable",
+        "MVCC",
+        "skiplist",
+        "ssts",
+        "tinyxml",
+        "wals"
+    ]
 }

@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/knight/cpp/DeltaDB_series/DeltaDB/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -117,25 +127,193 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-test/CMakeFiles/test.dir/rule:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/test.dir/rule
-.PHONY : test/CMakeFiles/test.dir/rule
+test/CMakeFiles/my_test.dir/rule:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/my_test.dir/rule
+.PHONY : test/CMakeFiles/my_test.dir/rule
 
 # Convenience name for target.
-test: test/CMakeFiles/test.dir/rule
-.PHONY : test
+my_test: test/CMakeFiles/my_test.dir/rule
+.PHONY : my_test
 
 # fast build rule for target.
-test/fast:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/build
-.PHONY : test/fast
+my_test/fast:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/build
+.PHONY : my_test/fast
+
+test_arena.o: test_arena.cpp.o
+.PHONY : test_arena.o
+
+# target to build an object file
+test_arena.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_arena.cpp.o
+.PHONY : test_arena.cpp.o
+
+test_arena.i: test_arena.cpp.i
+.PHONY : test_arena.i
+
+# target to preprocess a source file
+test_arena.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_arena.cpp.i
+.PHONY : test_arena.cpp.i
+
+test_arena.s: test_arena.cpp.s
+.PHONY : test_arena.s
+
+# target to generate assembly for a file
+test_arena.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_arena.cpp.s
+.PHONY : test_arena.cpp.s
+
+test_db.o: test_db.cpp.o
+.PHONY : test_db.o
+
+# target to build an object file
+test_db.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_db.cpp.o
+.PHONY : test_db.cpp.o
+
+test_db.i: test_db.cpp.i
+.PHONY : test_db.i
+
+# target to preprocess a source file
+test_db.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_db.cpp.i
+.PHONY : test_db.cpp.i
+
+test_db.s: test_db.cpp.s
+.PHONY : test_db.s
+
+# target to generate assembly for a file
+test_db.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_db.cpp.s
+.PHONY : test_db.cpp.s
+
+test_filename.o: test_filename.cpp.o
+.PHONY : test_filename.o
+
+# target to build an object file
+test_filename.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_filename.cpp.o
+.PHONY : test_filename.cpp.o
+
+test_filename.i: test_filename.cpp.i
+.PHONY : test_filename.i
+
+# target to preprocess a source file
+test_filename.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_filename.cpp.i
+.PHONY : test_filename.cpp.i
+
+test_filename.s: test_filename.cpp.s
+.PHONY : test_filename.s
+
+# target to generate assembly for a file
+test_filename.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_filename.cpp.s
+.PHONY : test_filename.cpp.s
+
+test_log.o: test_log.cpp.o
+.PHONY : test_log.o
+
+# target to build an object file
+test_log.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_log.cpp.o
+.PHONY : test_log.cpp.o
+
+test_log.i: test_log.cpp.i
+.PHONY : test_log.i
+
+# target to preprocess a source file
+test_log.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_log.cpp.i
+.PHONY : test_log.cpp.i
+
+test_log.s: test_log.cpp.s
+.PHONY : test_log.s
+
+# target to generate assembly for a file
+test_log.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_log.cpp.s
+.PHONY : test_log.cpp.s
+
+test_skiplist.o: test_skiplist.cpp.o
+.PHONY : test_skiplist.o
+
+# target to build an object file
+test_skiplist.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_skiplist.cpp.o
+.PHONY : test_skiplist.cpp.o
+
+test_skiplist.i: test_skiplist.cpp.i
+.PHONY : test_skiplist.i
+
+# target to preprocess a source file
+test_skiplist.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_skiplist.cpp.i
+.PHONY : test_skiplist.cpp.i
+
+test_skiplist.s: test_skiplist.cpp.s
+.PHONY : test_skiplist.s
+
+# target to generate assembly for a file
+test_skiplist.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_skiplist.cpp.s
+.PHONY : test_skiplist.cpp.s
+
+test_wal.o: test_wal.cpp.o
+.PHONY : test_wal.o
+
+# target to build an object file
+test_wal.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.o
+.PHONY : test_wal.cpp.o
+
+test_wal.i: test_wal.cpp.i
+.PHONY : test_wal.i
+
+# target to preprocess a source file
+test_wal.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.i
+.PHONY : test_wal.cpp.i
+
+test_wal.s: test_wal.cpp.s
+.PHONY : test_wal.s
+
+# target to generate assembly for a file
+test_wal.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.s
+.PHONY : test_wal.cpp.s
+
+test_wrrite_batch.o: test_wrrite_batch.cpp.o
+.PHONY : test_wrrite_batch.o
+
+# target to build an object file
+test_wrrite_batch.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wrrite_batch.cpp.o
+.PHONY : test_wrrite_batch.cpp.o
+
+test_wrrite_batch.i: test_wrrite_batch.cpp.i
+.PHONY : test_wrrite_batch.i
+
+# target to preprocess a source file
+test_wrrite_batch.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wrrite_batch.cpp.i
+.PHONY : test_wrrite_batch.cpp.i
+
+test_wrrite_batch.s: test_wrrite_batch.cpp.s
+.PHONY : test_wrrite_batch.s
+
+# target to generate assembly for a file
+test_wrrite_batch.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wrrite_batch.cpp.s
+.PHONY : test_wrrite_batch.cpp.s
 
 test_xml_conf.o: test_xml_conf.cpp.o
 .PHONY : test_xml_conf.o
 
 # target to build an object file
 test_xml_conf.cpp.o:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.o
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.o
 .PHONY : test_xml_conf.cpp.o
 
 test_xml_conf.i: test_xml_conf.cpp.i
@@ -143,7 +321,7 @@ test_xml_conf.i: test_xml_conf.cpp.i
 
 # target to preprocess a source file
 test_xml_conf.cpp.i:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.i
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.i
 .PHONY : test_xml_conf.cpp.i
 
 test_xml_conf.s: test_xml_conf.cpp.s
@@ -151,7 +329,7 @@ test_xml_conf.s: test_xml_conf.cpp.s
 
 # target to generate assembly for a file
 test_xml_conf.cpp.s:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/test_xml_conf.cpp.s
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.s
 .PHONY : test_xml_conf.cpp.s
 
 # Help Target
@@ -163,6 +341,28 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... test"
+	@echo "... my_test"
+	@echo "... test_arena.o"
+	@echo "... test_arena.i"
+	@echo "... test_arena.s"
+	@echo "... test_db.o"
+	@echo "... test_db.i"
+	@echo "... test_db.s"
+	@echo "... test_filename.o"
+	@echo "... test_filename.i"
+	@echo "... test_filename.s"
+	@echo "... test_log.o"
+	@echo "... test_log.i"
+	@echo "... test_log.s"
+	@echo "... test_skiplist.o"
+	@echo "... test_skiplist.i"
+	@echo "... test_skiplist.s"
+	@echo "... test_wal.o"
+	@echo "... test_wal.i"
+	@echo "... test_wal.s"
+	@echo "... test_wrrite_batch.o"
+	@echo "... test_wrrite_batch.i"
+	@echo "... test_wrrite_batch.s"
 	@echo "... test_xml_conf.o"
 	@echo "... test_xml_conf.i"
 	@echo "... test_xml_conf.s"

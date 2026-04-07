@@ -1,21 +1,24 @@
-file(GLOB_RECURSE WAL_SOURCES *.cpp)
+file(GLOB WAL_SOURCES *.cpp *.cc)
 
-add_library(db_wal STATIC ${WAL_SOURCES})
-
-target_include_directories(db_wal
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PRIVATE
-        # wal 实现可能需要 kv 的头文件，但接口不暴露
-        ${CMAKE_SOURCE_DIR}/src/kv/include
-)
-
-target_link_libraries(db_wal
-    PUBLIC
-        DeltaDB::common
-        xxhash::xxhash
-    PRIVATE
-        ZLIB::ZLIB
-)
-
-add_library(DeltaDB::wal ALIAS db_wal)
+if(WAL_SOURCES)
+    add_library(wal STATIC ${WAL_SOURCES})
+    
+    target_include_directories(wal
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    
+    target_link_libraries(wal
+        PUBLIC
+            DeltaDB::utils
+    )
+    
+    add_library(DeltaDB::wal ALIAS wal)
+else()
+    add_library(wal INTERFACE)
+    target_include_directories(wal
+        INTERFACE
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+    )
+    add_library(DeltaDB::wal ALIAS wal)
+endif()

@@ -34,3 +34,13 @@ src/
     ├── crc32c.h.cpp          # CRC校验
     ├── comparator.h          # 比较器
     └── env.h/cpp             # 文件系统封装
+
+
+
+1. 在程序入口源文件声明并初始化全局配置对象 gDBConfig，仅声明全局日志对象 gDBLogger
+2. gDBConfig 初始化完成之后，利用配置信息初始化 gDBLogger （log 单向 依赖 config，避免循环依赖）。gDBLogger 的构造函数中自动调用 Logger::init() 函数，读取 gDBConfig 配置信息传参。故一定要先初始化 gDBConfig，再初始化 gDBLogger。
+
+
+db_impl.cc
+
+

@@ -1,0 +1,20 @@
+# 场景1：只调试 SkipListTest.test1（刚刚修复的死锁问题）
+./my_test --gtest_filter=SkipListTest.test1
+
+# 场景2：运行所有 SkipListTest，但排除性能测试
+./my_test --gtest_filter=SkipListTest.*:-SkipListTest.performance_test
+
+# 场景3：只运行快速测试（排除性能测试和并发测试）
+./my_test --gtest_filter=-*performance*:*concurrent*
+
+# 场景4：运行 MemtableTest 和 SkipListTest，排除 LoggerTest
+./my_test --gtest_filter=MemtableTest.*:SkipListTest.*
+
+# 场景5：只运行某个文件中的测试（通过命名约定）
+./my_test --gtest_filter=SkipListTest.*  # 假设 test_skiplist.cpp 中的测试都以 SkipListTest 开头
+
+# 场景6：列出所有测试（不执行）
+./my_test --gtest_list_tests
+
+# 场景7：列出后过滤查看
+./my_test --gtest_list_tests | grep SkipList

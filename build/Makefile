@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/knight/cpp/DeltaDB_series/DeltaDB/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
@@ -117,69 +127,56 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named spdlog
+# Target rules for targets named utils
 
 # Build rule for target.
-spdlog: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 spdlog
-.PHONY : spdlog
+utils: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 utils
+.PHONY : utils
 
 # fast build rule for target.
-spdlog/fast:
-	$(MAKE) $(MAKESILENT) -f _deps/spdlog-build/CMakeFiles/spdlog.dir/build.make _deps/spdlog-build/CMakeFiles/spdlog.dir/build
-.PHONY : spdlog/fast
+utils/fast:
+	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/utils.dir/build.make src/utils/CMakeFiles/utils.dir/build
+.PHONY : utils/fast
 
 #=============================================================================
-# Target rules for targets named db_common
+# Target rules for targets named wal
 
 # Build rule for target.
-db_common: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db_common
-.PHONY : db_common
+wal: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 wal
+.PHONY : wal
 
 # fast build rule for target.
-db_common/fast:
-	$(MAKE) $(MAKESILENT) -f src/common/CMakeFiles/db_common.dir/build.make src/common/CMakeFiles/db_common.dir/build
-.PHONY : db_common/fast
+wal/fast:
+	$(MAKE) $(MAKESILENT) -f src/wal/CMakeFiles/wal.dir/build.make src/wal/CMakeFiles/wal.dir/build
+.PHONY : wal/fast
 
 #=============================================================================
-# Target rules for targets named db_wal
+# Target rules for targets named table
 
 # Build rule for target.
-db_wal: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db_wal
-.PHONY : db_wal
+table: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 table
+.PHONY : table
 
 # fast build rule for target.
-db_wal/fast:
-	$(MAKE) $(MAKESILENT) -f src/wal/CMakeFiles/db_wal.dir/build.make src/wal/CMakeFiles/db_wal.dir/build
-.PHONY : db_wal/fast
+table/fast:
+	$(MAKE) $(MAKESILENT) -f src/table/CMakeFiles/table.dir/build.make src/table/CMakeFiles/table.dir/build
+.PHONY : table/fast
 
 #=============================================================================
-# Target rules for targets named db_sst
+# Target rules for targets named db
 
 # Build rule for target.
-db_sst: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db_sst
-.PHONY : db_sst
+db: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db
+.PHONY : db
 
 # fast build rule for target.
-db_sst/fast:
-	$(MAKE) $(MAKESILENT) -f src/sst/CMakeFiles/db_sst.dir/build.make src/sst/CMakeFiles/db_sst.dir/build
-.PHONY : db_sst/fast
-
-#=============================================================================
-# Target rules for targets named db_kv
-
-# Build rule for target.
-db_kv: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db_kv
-.PHONY : db_kv
-
-# fast build rule for target.
-db_kv/fast:
-	$(MAKE) $(MAKESILENT) -f src/kv/CMakeFiles/db_kv.dir/build.make src/kv/CMakeFiles/db_kv.dir/build
-.PHONY : db_kv/fast
+db/fast:
+	$(MAKE) $(MAKESILENT) -f src/db/CMakeFiles/db.dir/build.make src/db/CMakeFiles/db.dir/build
+.PHONY : db/fast
 
 #=============================================================================
 # Target rules for targets named deltadb
@@ -195,30 +192,17 @@ deltadb/fast:
 .PHONY : deltadb/fast
 
 #=============================================================================
-# Target rules for targets named db_cli
+# Target rules for targets named my_test
 
 # Build rule for target.
-db_cli: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 db_cli
-.PHONY : db_cli
+my_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 my_test
+.PHONY : my_test
 
 # fast build rule for target.
-db_cli/fast:
-	$(MAKE) $(MAKESILENT) -f app/cli/CMakeFiles/db_cli.dir/build.make app/cli/CMakeFiles/db_cli.dir/build
-.PHONY : db_cli/fast
-
-#=============================================================================
-# Target rules for targets named test
-
-# Build rule for target.
-test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test
-.PHONY : test
-
-# fast build rule for target.
-test/fast:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/test.dir/build.make test/CMakeFiles/test.dir/build
-.PHONY : test/fast
+my_test/fast:
+	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/build
+.PHONY : my_test/fast
 
 # Help Target
 help:
@@ -228,14 +212,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... db_cli"
-	@echo "... db_common"
-	@echo "... db_kv"
-	@echo "... db_sst"
-	@echo "... db_wal"
-	@echo "... deltadb"
-	@echo "... spdlog"
 	@echo "... test"
+	@echo "... db"
+	@echo "... deltadb"
+	@echo "... my_test"
+	@echo "... table"
+	@echo "... utils"
+	@echo "... wal"
 .PHONY : help
 
 

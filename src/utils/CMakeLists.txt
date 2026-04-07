@@ -1,19 +1,20 @@
-file(GLOB_RECURSE UTILS_SOURCES *.cpp)
+file(GLOB UTILS_SOURCES *.cpp *.cc)
 
-add_library(db_utils STATIC ${UTILS_SOURCES})
+add_library(utils STATIC ${UTILS_SOURCES})
 
-target_include_directories(db_utils
+target_include_directories(utils
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_SOURCE_DIR}/src/include
+        ${CMAKE_SOURCE_DIR}/src/table/include
 )
 
-target_link_libraries(db_utils
+target_link_libraries(utils
     PUBLIC
-        spdlog::spdlog
+        # spdlog::spdlog
+        tinyxml::tinyxml
     PRIVATE
-        xxhash::xxhash
-        Snappy::snappy
         ZLIB::ZLIB
 )
 
-add_library(DeltaDB::utils ALIAS db_utils)
+add_library(DeltaDB::utils ALIAS utils)

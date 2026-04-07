@@ -4,4 +4,4 @@
 # 
 # This file includes the relevant testing commands required for 
 # testing this directory and lists subdirectories to be tested as well.
-include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/test[1]_include.cmake")
+include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/my_test[1]_include.cmake")

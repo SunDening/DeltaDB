@@ -1,5 +1,4 @@
 1. 改进配置文件及其读取
-2. 将 wal 改成kv_core的成员
-
-36
-120
+2. 改进日志
+3. 测试 Memtable 和 MemtableManager
+4. 实现 wal 部分

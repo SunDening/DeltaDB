@@ -1,235 +1,319 @@
 #pragma once
 
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <mutex>  // 提供 std::mutex, std::lock_guard, std::unique_lock
-#include <optional>
-#include <shared_mutex>
-#include <sstream>
-#include <string>
-#include <vector>
-
-// 墓碑数据标志
-const std::string TOMBSTONE = "<TOMBSTONE>";
+#include "arena.h"
+#include "log.h"
+#include "util.h"
 
 namespace delta {
+
+/**
+ * 该跳表实现要求写操作需外部同步（如互斥锁），而读操作只要保证跳表不被销毁即可无锁并发进行，
+ * 其核心在于节点一旦插入便永不删除且数据不可变，仅通过安全的指针发布来保证线程安全。
+ * 在并发访问方面，它做出了明确的划分：
+ *  1. 写操作：必须由外部机制（如互斥锁 Mutex）进行同步，以防止并发写入导致的数据竞争；
+ *  2.
+ * 读操作：只要保证跳表在读取过程中不被销毁，就可以无锁并发进行，因为节点一旦插入后就不会被修改或删除，确保了数据的稳定性和一致性。
+ * 为了支撑这种高效的读写模型，代码强制维护了以下两个关键不变性：
+ * -
+ * 内存生命周期不变性：一旦节点被分配，它将永远不会被删除，直到整个跳表被销毁。代码中完全不包含删除节点的逻辑，这从根本上避免了读线程访问到已被释放内存的问题。
+ * -
+ * 数据内容不变性：节点一旦被链接进跳表，其内容（除了用于构建链表结构的前后指针外）即变为不可变（Immutable）。所有的修改权发生在
+ * Insert()
+ * 操作中，且插入过程会先完整初始化节点，再利用“释放存储（release-stores）”等原子操作安全地将节点发布到一个或多个层级的链表中，从而保证了并发读取时数据的一致性。
+ */
+
+template <typename Key, class Comparator>
 class SkipList {
    private:
-    struct Node {
-        std::string key;
-        std::string value;
-        std::vector<Node *> forward;  // forward[i] 是指向第 i 层中该节点的下一个节点。
-
-        Node(std::string k, std::string v, int level) : key(k), value(v), forward(level, nullptr) {}
-    };
-
-    int maxLevel_;       // 最大层数
-    float probability_;  // 节点晋升概率
-    Node *header_;       // 头节点，指向每层的起点。
-    int currentLevel_;   // 当前最大层数
-
-    size_t entry_count_;
-    size_t total_size_bytes_;
-
-    std::shared_mutex rw_mtx_;
-
-    // 随机生成节点层数
-    // 每个新插入的节点会通过这个函数决定自己的层数。
-    // 晋升概率控制了跳表的“稀疏程度”。
-    int randomLevel();
+    struct Node;
 
    public:
-    typedef std::shared_ptr<SkipList> ptr;
+    /**
+     * 功能定义：跳表对象将使用指定的 cmp 函数来比较键（keys），并使用 *arena 进行内存分配
+     * 内存管理约束：通过 arena 分配的所有对象，其内存必须保持有效（即不能被释放），直到该跳表对象本身结束其生命周期
+     */
+    explicit SkipList(Comparator cmp, Arena* arena);
 
-    SkipList(int maxLvl = 16, float p = 0.5) : maxLevel_(maxLvl), probability_(p), currentLevel_(1) {
-        this->header_ = new Node("", "", maxLevel_);
-        entry_count_ = 0;
-        total_size_bytes_ = 0;
-    }
+    SkipList(const SkipList&) = delete;
+    SkipList& operator=(const SkipList&) = delete;
 
-    ~SkipList() {
-        Node *current = header_->forward[0];
-        while (current != nullptr) {
-            Node *next = current->forward[0];
-            delete current;
-            current = next;
-        }
-        delete header_;
-    }
+    // 插入操作。要求表中不能存在与待插入键相等的元素。
+    void Insert(const Key& key);
 
-    // 插入键值
-    bool insert(std::string key, std::string value);
+    // 查找操作。如果列表中存在与key相等的项，则返回true
+    bool Contains(const Key& key) const;
 
-    // 查找键值
-    std::optional<std::string> search(std::string key);
+    // 跳表内容迭代器
+    class Iterator {
+       public:
+        explicit Iterator(const SkipList* list);
 
-    // 删除键值
-    bool erase(std::string key);
+        // 如果迭代器位于有效节点，则返回true。
+        bool Valid() const;
 
-    // 打印跳表结构
-    void display();
+        // 返回当前位置的键。要求 Valid() 返回 true。
+        const Key& key() const;
 
-    size_t size() const;
+        // 将迭代器移动到下一个节点。要求 Valid() 返回 true。
+        void Next();
 
-    bool empty() const;
+        // 将迭代器移动到上一个节点。要求 Valid() 返回 true。
+        void Prev();
 
-    std::vector<std::pair<std::string, std::string>> traverse();
+        // 将迭代器移动到 key >= target 的第一个节点。
+        void Seek(const Key& target);
 
-    // 计算当前 active_memtable 大小（简单计数）
-    size_t GetMemTableSize();
+        // 将迭代器移动到第一个节点。如果list不为空，迭代器的最终状态为Valid()
+        void SeekToFirst();
+
+        // 将迭代器移动到最后一个节点。如果list不为空，迭代器的最终状态为Valid()
+        void SeekToLast();
+
+       private:
+        const SkipList* list_;
+        Node* node_;
+    };
+
+   private:
+    enum { kMaxHeight = 12 };  // 跳表的最大高度
+
+    inline int GetMaxHeight() const { return max_height_.load(std::memory_order_relaxed); }
+
+    Node* NewNode(const Key& key, int height);
+    int RandomHeight();
+    bool Equal(const Key& a, const Key& b) const { return (compare_(a, b) == 0); }
+
+    // 如果key大于存储在“n”中的数据，则返回true
+    bool KeyIsAfterNode(const Key& key, Node* n) const;
+
+    // 返回键处或键后最早的节点。如果没有，返回nullptr
+    Node* FindGreaterOrEqual(const Key& key, Node** prev) const;
+
+    // 返回键前最早的节点。如果没有，返回 head_
+    Node* FindLessThan(const Key& key) const;
+
+    // 返回最后一个节点。如果没有，返回 head_
+    Node* FindLast() const;
+
+    Comparator const compare_;  // 比较器
+
+    Arena* const arena_;  // 内存分配器
+
+    Node* const head_;  // 跳表的头节点（哨兵）
+
+    std::atomic<int> max_height_;  // 跳表的当前最大高度
+
+    Random rnd_;  // 用于生成随机高度的随机数生成器
 };
 
-int SkipList::randomLevel() {
-    int lvl = 1;
-    while ((rand() % 100) < (probability_ * 100) && lvl < maxLevel_) {
-        lvl++;
+template <typename Key, class Comparator>
+struct SkipList<Key, Comparator>::Node {
+    explicit Node(const Key& k) : key(k) {}
+
+    Key const key;  // 节点的键
+
+    // 获取在第 n 层的下一个节点（带内存屏障）
+    Node* Next(int n) {
+        assert(n >= 0);
+        return next_[n].load(std::memory_order_acquire);
     }
-    return lvl;
+
+    // 设置在第 n 层的下一个节点（带内存屏障）
+    void SetNext(int n, Node* x) {
+        assert(n >= 0);
+        next_[n].store(x, std::memory_order_release);
+    }
+
+    // 获取在第 n 层的下一个节点（不带内存屏障）
+    Node* NoBarrier_Next(int n) {
+        assert(n >= 0);
+        return next_[n].load(std::memory_order_relaxed);
+    }
+
+    void NoBarrier_SetNext(int n, Node* x) {
+        assert(n >= 0);
+        next_[n].store(x, std::memory_order_relaxed);
+    }
+
+   private:
+    std::atomic<Node*> next_[1];  // 指向下一节点的指针数组，实际大小由节点的高度决定
+};
+
+template <typename Key, class Comparator>
+typename SkipList<Key, Comparator>::Node* SkipList<Key, Comparator>::NewNode(const Key& key, int height) {
+    // 计算需要的内存大小
+    // sizeof(Node) + 每层指针的大小 * (height - 1)
+    char* const node_memory = arena_->AllocateAligned(sizeof(Node) + sizeof(std::atomic<Node*>) * (height - 1));
+    // Placement new 在分配的内存上构造 Node
+    return new (node_memory) Node(key);
 }
 
-// 插入键值
-bool SkipList::insert(std::string key, std::string value) {
-    std::unique_lock<std::shared_mutex> memtable_lock(rw_mtx_);
+template <typename Key, class Comparator>
+inline SkipList<Key, Comparator>::Iterator::Iterator(const SkipList* list) {
+    list_ = list;
+    node_ = nullptr;
+}
 
-    std::vector<Node *> update(maxLevel_, nullptr);
-    Node *current = header_;
+template <typename Key, class Comparator>
+inline bool SkipList<Key, Comparator>::Iterator::Valid() const {
+    return node_ != nullptr;
+}
 
-    // 从最高层开始查找插入位置
-    for (int i = currentLevel_ - 1; i >= 0; i--) {
-        while (current->forward[i] != nullptr && current->forward[i]->key < key) {
-            current = current->forward[i];
-        }
-        update[i] = current;  // 记录每层需要更新的节点
+template <typename Key, class Comparator>
+inline const Key& SkipList<Key, Comparator>::Iterator::key() const {
+    assert(Valid());
+    return node_->key;
+}
+
+template <typename Key, class Comparator>
+inline void SkipList<Key, Comparator>::Iterator::Next() {
+    assert(Valid());
+    node_ = node_->Next(0);
+}
+
+template <typename Key, class Comparator>
+inline void SkipList<Key, Comparator>::Iterator::Prev() {
+    assert(Valid());
+    node_ = list_->FindLessThan(node_->key);
+    if (node_ == list_->head_) {
+        node_ = nullptr;
     }
+}
 
-    current = current->forward[0];
+template <typename Key, class Comparator>
+inline void SkipList<Key, Comparator>::Iterator::Seek(const Key& target) {
+    node_ = list_->FindGreaterOrEqual(target, nullptr);
+}
 
-    if (current == nullptr || current->key != key) {
-        entry_count_++;
-        total_size_bytes_ += (key.size() + value.size());
-        int newLevel = randomLevel();
+template <typename Key, class Comparator>
+inline void SkipList<Key, Comparator>::Iterator::SeekToFirst() {
+    node_ = list_->head_->Next(0);
+}
 
-        // 如果新节点层数高于当前层数，更新上层指针
-        if (newLevel > currentLevel_) {
-            for (int i = currentLevel_; i < newLevel; i++) {
-                update[i] = header_;
+template <typename Key, class Comparator>
+inline void SkipList<Key, Comparator>::Iterator::SeekToLast() {
+    node_ = list_->FindLast();
+    if (node_ == list_->head_) {
+        node_ = nullptr;
+    }
+}
+
+template <typename Key, class Comparator>
+int SkipList<Key, Comparator>::RandomHeight() {
+    static const unsigned int kBranching = 4;  // 每层的分支因子
+    int height = 1;
+    while (height < kMaxHeight && ((rnd_.Next() % kBranching) == 0)) {
+        height++;
+    }
+    assert(height > 0);
+    assert(height <= kMaxHeight);
+    return height;
+}
+
+template <typename Key, class Comparator>
+bool SkipList<Key, Comparator>::KeyIsAfterNode(const Key& key, Node* n) const {
+    return (n != nullptr) && (compare_(n->key, key) < 0);
+}
+
+template <typename Key, class Comparator>
+typename SkipList<Key, Comparator>::Node* SkipList<Key, Comparator>::FindGreaterOrEqual(const Key& key,
+                                                                                        Node** prev) const {
+    Node* x = head_;
+    int level = GetMaxHeight() - 1;
+    while (true) {
+        Node* next = x->Next(level);
+        if (KeyIsAfterNode(key, next)) {
+            x = next;
+        } else {
+            if (prev != nullptr) prev[level] = x;
+            if (level == 0) {
+                return next;
+            } else {
+                level--;
             }
-            currentLevel_ = newLevel;
         }
-
-        // 创建新节点
-        Node *newNode = new Node(key, value, newLevel);
-
-        // 更新各层指针
-        for (int i = 0; i < newLevel; i++) {
-            newNode->forward[i] = update[i]->forward[i];
-            update[i]->forward[i] = newNode;
-        }
-        // std::cout << "Inserted key " << key << " at level " << newLevel << std::endl;
-        return true;
-    } else {  // 如果key已存在，cover the old value
-        total_size_bytes_ -= current->value.size();
-        total_size_bytes_ += value.size();
-        current->value = value;
-        return true;
     }
 }
 
-// 查找键值
-std::optional<std::string> SkipList::search(std::string key) {
-    std::shared_lock<std::shared_mutex> memtable_lock(rw_mtx_);
-
-    Node *current = header_;
-    std::optional<std::string> ret;
-
-    // 从最高层开始查找，直到底层（不从底层开始，前面跳跃，可以少查一些）
-    for (int i = currentLevel_ - 1; i >= 0; i--) {
-        while (current->forward[i] != nullptr && current->forward[i]->key < key) {
-            current = current->forward[i];
+template <typename Key, class Comparator>
+typename SkipList<Key, Comparator>::Node* SkipList<Key, Comparator>::FindLessThan(const Key& key) const {
+    Node* x = head_;
+    int level = GetMaxHeight() - 1;
+    while (true) {
+        assert(x == head_ || compare_(x->key, key) < 0);
+        Node* next = x->Next(level);
+        if (next == nullptr || compare_(next->key, key) >= 0) {
+            if (level == 0) {
+                return x;
+            } else {
+                // Switch to next list
+                level--;
+            }
+        } else {
+            x = next;
         }
     }
-
-    current = current->forward[0];
-    // return current != nullptr && current->key == key;
-    // return ((current != nullptr && current->key == key) ? current->value : "_N_E_K_");
-    return ((current != nullptr && current->key == key) ? current->value : ret);
 }
 
-// 删除键值
-bool SkipList::erase(std::string key) {
-    std::unique_lock<std::shared_mutex> memtable_lock(rw_mtx_);
-
-    std::vector<Node *> update(maxLevel_, nullptr);
-    Node *current = header_;
-
-    // 查找要删除的节点
-    for (int i = currentLevel_ - 1; i >= 0; i--) {
-        while (current->forward[i] != nullptr && current->forward[i]->key < key) {
-            current = current->forward[i];
+template <typename Key, class Comparator>
+typename SkipList<Key, Comparator>::Node* SkipList<Key, Comparator>::FindLast() const {
+    Node* x = head_;
+    int level = GetMaxHeight() - 1;
+    while (true) {
+        Node* next = x->Next(level);
+        if (next == nullptr) {
+            if (level == 0) {
+                return x;
+            } else {
+                // Switch to next list
+                level--;
+            }
+        } else {
+            x = next;
         }
-        update[i] = current;
+    }
+}
+
+template <typename Key, class Comparator>
+SkipList<Key, Comparator>::SkipList(Comparator cmp, Arena* arena)
+    : compare_(cmp), arena_(arena), head_(NewNode("", kMaxHeight)), max_height_(1), rnd_(0xdeadbeef) {
+    for (int i = 0; i < kMaxHeight; i++) {
+        head_->SetNext(i, nullptr);
+    }
+    InfoLog << "SkipList created with max height " << kMaxHeight;
+}
+
+template <typename Key, class Comparator>
+void SkipList<Key, Comparator>::Insert(const Key& key) {
+    Node* prev[kMaxHeight];
+    Node* x = FindGreaterOrEqual(key, prev);
+
+    // 我们的数据结构不允许重复插
+    assert(x == nullptr || !Equal(key, x->key));
+
+    int height = RandomHeight();
+    if (height > GetMaxHeight()) {
+        for (int i = GetMaxHeight(); i < height; i++) {
+            prev[i] = head_;
+        }
+        max_height_.store(height, std::memory_order_relaxed);
     }
 
-    current = current->forward[0];
+    x = NewNode(key, height);
+    for (int i = 0; i < height; i++) {
+        x->NoBarrier_SetNext(i, prev[i]->NoBarrier_Next(i));
+        prev[i]->SetNext(i, x);
+    }
+}
 
-    // 如果找到key，则删除
-    if (current != nullptr && current->key == key) {
-        // 更新各层指针
-        for (int i = 0; i < currentLevel_; i++) {
-            if (update[i]->forward[i] != current) break;
-            update[i]->forward[i] = current->forward[i];
-        }
-
-        delete current;
-
-        // 如果删除的是最高层节点，降低currentLevel
-        while (currentLevel_ > 1 && header_->forward[currentLevel_ - 1] == nullptr) {
-            currentLevel_--;
-        }
-
-        // std::cout << "Deleted key " << key << std::endl;
+template <typename Key, class Comparator>
+bool SkipList<Key, Comparator>::Contains(const Key& key) const {
+    Node* x = FindGreaterOrEqual(key, nullptr);
+    if (x != nullptr && Equal(key, x->key)) {
         return true;
     } else {
-        return false;  // key not exists
+        return false;
     }
 }
-
-// 打印跳表结构
-void SkipList::display() {
-    std::shared_lock<std::shared_mutex> memtable_lock(rw_mtx_);
-
-    std::cout << "\n*****Skip List*****" << std::endl;
-    for (int i = 0; i < currentLevel_; i++) {
-        Node *node = header_->forward[i];
-        std::cout << "Level " << i << ": ";
-        while (node != nullptr) {
-            std::cout << node->key << ":" << node->value << " ";
-            node = node->forward[i];
-        }
-        std::cout << std::endl;
-    }
-}
-
-size_t SkipList::size() const { return total_size_bytes_; }
-
-bool SkipList::empty() const { return entry_count_ == 0; }
-
-std::vector<std::pair<std::string, std::string>> SkipList::traverse() {
-    std::shared_lock<std::shared_mutex> memtable_lock(rw_mtx_);
-
-    std::vector<std::pair<std::string, std::string>> result;
-
-    Node *current = header_->forward[0];  // Level 0 is the lowest level (fully linked)
-    while (current != nullptr) {
-        result.emplace_back(current->key, current->value);
-        current = current->forward[0];
-    }
-
-    return result;
-}
-
-size_t SkipList::GetMemTableSize() { return this->size(); }
 
 }  // namespace delta

@@ -44,12 +44,22 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/_deps/spdlog-build/cmake_install.cmake")
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/utils/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/cmake_install.cmake")
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/wal/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/table/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
+  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/db/cmake_install.cmake")
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
