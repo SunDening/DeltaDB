@@ -97,12 +97,8 @@ class Config {
     LogLevel db_log_level_{LogLevel::DEBUG};  // DB内部的日志等级
     int log_sync_interval_{500};              // 日志同步间隔
 
-    // 预写日志参数（wal params）
-    std::string wal_path;       // 预写日志路径
-    std::string wal_base_name;  // 预写日志基础名称
-    int wal_max_file_size;      // 单预写日志文件最大容量
-
     // db参数（db params）
+    std::string db_path;
     int num_levels;                  // 层数
     int l0_compaction_trigger;       // Level-0 有多少个文件时开始压缩
     int l0_slowdown_writes_trigger;  // 0级文件数量软限制。此时我们减慢了写入速度.
@@ -148,8 +144,6 @@ class Config {
     void readConf();
 
     void readLogConfig(TiXmlElement *log_node);
-
-    void readWalConfig(TiXmlElement *wal_node);
 
     void readDBConfig(TiXmlElement *db_node);
 

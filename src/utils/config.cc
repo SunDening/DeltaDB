@@ -38,11 +38,6 @@ void Config::readConf() {
     checkType(log_node, "log");
     readLogConfig(log_node);
 
-    // <Wal>
-    TiXmlElement *wal_node = root->FirstChildElement("wal");
-    checkType(wal_node, "wal");
-    readWalConfig(wal_node);
-
     // <db>
     TiXmlElement *db_node = root->FirstChildElement("db");
     checkType(db_node, "db");
@@ -71,22 +66,12 @@ void Config::readLogConfig(TiXmlElement *log_node) {
     log_sync_interval_ = std::atoi(node->GetText());
 }
 
-void Config::readWalConfig(TiXmlElement *wal_node) {
-    TiXmlElement *node = wal_node->FirstChildElement("wal_path");
-    checkItem(node, "wal_path");
-    wal_path = std::string(node->GetText());
-
-    node = wal_node->FirstChildElement("wal_base_name");
-    checkItem(node, "wal_base_name");
-    wal_base_name = std::string(node->GetText());
-
-    node = wal_node->FirstChildElement("wal_max_file_size");
-    checkItem(node, "wal_max_file_size");
-    wal_max_file_size = std::atoi(node->GetText()) * 1024 * 1024;
-}
-
 void Config::readDBConfig(TiXmlElement *db_node) {
-    TiXmlElement *node = db_node->FirstChildElement("num_levels");
+    TiXmlElement *node = db_node->FirstChildElement("db_path");
+    checkItem(node, "db_path");
+    db_path = std::string(node->GetText());
+
+    node = db_node->FirstChildElement("num_levels");
     checkItem(node, "num_levels");
     num_levels = std::atoi(node->GetText());
 

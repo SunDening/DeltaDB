@@ -1,7 +1,6 @@
 #include <unistd.h>
 #include <mutex>
 
-#include "block.h"
 #include "coding.h"
 #include "db.h"
 #include "db_impl.h"
@@ -13,7 +12,6 @@
 #include "sst_builder.h"
 #include "sst_cache.h"
 #include "table.h"
-#include "two_level_iterator.h"
 #include "version_set.h"
 #include "wal_reader.h"
 #include "wal_writer.h"
@@ -22,21 +20,6 @@
 namespace delta {
 delta::Config::ptr gDBConfig;
 delta::Logger::ptr gDBLogger;
-
-void start() {
-    // Try multiple config paths: project root first, then parent directory
-    const char* config_paths[] = {"./conf/config.xml", "../conf/config.xml", "../../conf/config.xml"};
-    const char* chosen_path = config_paths[0];
-    for (const char* path : config_paths) {
-        if (access(path, F_OK) == 0) {
-            chosen_path = path;
-            break;
-        }
-    }
-    gDBConfig = std::make_shared<Config>(chosen_path);
-    gDBLogger = std::make_shared<Logger>();
-    gDBLogger->start();
-}
 
 // ===========================================
 

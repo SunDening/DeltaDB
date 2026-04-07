@@ -10,12 +10,6 @@
 
 using namespace delta;
 
-// ============================================================================
-// 帮助信息
-// ./build/bin/deltadb              # 默认路径 ./output/delta
-// ./build/bin/deltadb --db /path   # 自定义数据库路径
-// ============================================================================
-
 static void PrintHelp() {
     std::cout << R"(DeltaDB CLI - 命令行客户端
 
@@ -207,31 +201,29 @@ static void REPL(DB* db) {
 // ============================================================================
 // 入口
 // ============================================================================
-
-int main(int argc, char* argv[]) {
-    const char* db_path = "./output/delta";
-
-    // 解析命令行参数
-    for (int i = 1; i < argc; i++) {
-        if (std::strcmp(argv[i], "--db") == 0 && i + 1 < argc) {
-            db_path = argv[++i];
-        } else if (std::strcmp(argv[i], "--help") == 0 || std::strcmp(argv[i], "-h") == 0) {
-            std::cout << "Usage: deltadb [--db <path>] [--help]\n"
-                      << "  --db <path>   Database directory (default: ./output/delta)\n"
-                      << "  --help        Show this help\n";
-            return 0;
+void start() {
+    // Try multiple config paths: project root first, then parent directory
+    const char* config_paths[] = {"./conf/config.xml", "../conf/config.xml", "../../conf/config.xml"};
+    const char* chosen_path = config_paths[0];
+    for (const char* path : config_paths) {
+        if (access(path, F_OK) == 0) {
+            chosen_path = path;
+            break;
         }
     }
-
+    gDBConfig = std::make_shared<Config>(chosen_path);
+    gDBLogger = std::make_shared<Logger>();
+    gDBLogger->start();
+}
+int main(int argc, char* argv[]) {
     // 1. 初始化全局配置和日志
     start();
-    gDBConfig->create_if_missing = true;
 
     // 2. 打开数据库
     DB* db = nullptr;
-    Status s = DB::Open(db_path, &db);
+    Status s = DB::Open(gDBConfig->db_path, &db);
     if (!s.ok()) {
-        std::cerr << "Failed to open database at '" << db_path << "': " << s.ToString() << "\n";
+        std::cerr << "Failed to open database at '" << gDBConfig->db_path << "': " << s.ToString() << "\n";
         return 1;
     }
 

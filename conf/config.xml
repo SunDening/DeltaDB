@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <root>
-  <!--log config-->
+  
   <log>
     <!--identify path of log file-->
-    <log_path>./output/logs/</log_path>
+    <log_path>./output/delta_logs/</log_path>
     <log_prefix>delta</log_prefix>
 
     <!--identify max size of single log file, MB-->
@@ -16,16 +16,9 @@
     <log_sync_interval>500</log_sync_interval>
   </log>
 
-  <wal>
-    <!--identify path of wal file-->
-    <wal_path>./output/wals/</wal_path>
-    <wal_base_name>00000.wal</wal_base_name>
-
-    <!--identify max size of single wal file-->
-    <wal_max_file_size>10</wal_max_file_size>
-  </wal>
-
   <db>
+    <!-- 数据库目录 -->
+    <db_path>./output/delta</db_path>
     <!-- 层级数 -->
     <num_levels>7</num_levels>
     <!-- 0级压缩触发文件数量 -->

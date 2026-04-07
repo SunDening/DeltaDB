@@ -2,9 +2,8 @@
 
 #include "block.h"
 #include "coding.h"
-#include "config.h"
-#include "sst_format.h"
 #include "random_access_file.h"
+#include "sst_format.h"
 
 namespace delta {
 

@@ -7,6 +7,21 @@
 
 using namespace delta;
 
+static void start() {
+    // Try multiple config paths: project root first, then parent directory
+    const char* config_paths[] = {"./conf/config.xml", "../conf/config.xml", "../../conf/config.xml"};
+    const char* chosen_path = config_paths[0];
+    for (const char* path : config_paths) {
+        if (access(path, F_OK) == 0) {
+            chosen_path = path;
+            break;
+        }
+    }
+    gDBConfig = std::make_shared<Config>(chosen_path);
+    gDBLogger = std::make_shared<Logger>();
+    gDBLogger->start();
+}
+
 static std::string PrintContents(WriteBatch* batch) {
     // 创建 MemTable 作为输出目标
     InternalKeyComparator cmp(BytewiseComparator());
@@ -55,7 +70,7 @@ static std::string PrintContents(WriteBatch* batch) {
 }
 
 TEST(WriteBatchTest, Empty) {
-    delta::start();
+    start();
 
     WriteBatch batch;
     ASSERT_EQ("", PrintContents(&batch));
@@ -63,7 +78,7 @@ TEST(WriteBatchTest, Empty) {
 }
 
 TEST(WriteBatchTest, Multiple) {
-    delta::start();
+    start();
 
     WriteBatch batch;
     batch.Put(std::string_view("foo"), std::string_view("bar"));

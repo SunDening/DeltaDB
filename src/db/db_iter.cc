@@ -1,7 +1,5 @@
-#include <mutex>
-
-#include "db_impl.h"
 #include "db_iter.h"
+#include "db_impl.h"
 #include "dbformat.h"
 #include "filename.h"
 #include "iterator.h"

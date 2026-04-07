@@ -5,8 +5,23 @@
 
 using namespace delta;
 
+static void start() {
+    // Try multiple config paths: project root first, then parent directory
+    const char* config_paths[] = {"./conf/config.xml", "../conf/config.xml", "../../conf/config.xml"};
+    const char* chosen_path = config_paths[0];
+    for (const char* path : config_paths) {
+        if (access(path, F_OK) == 0) {
+            chosen_path = path;
+            break;
+        }
+    }
+    gDBConfig = std::make_shared<Config>(chosen_path);
+    gDBLogger = std::make_shared<Logger>();
+    gDBLogger->start();
+}
+
 TEST(ArenaTest, Basic) {
-    delta::start();
+    start();
 
     Arena arena;
 

@@ -260,30 +260,6 @@ test_skiplist.cpp.s:
 	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_skiplist.cpp.s
 .PHONY : test_skiplist.cpp.s
 
-test_wal.o: test_wal.cpp.o
-.PHONY : test_wal.o
-
-# target to build an object file
-test_wal.cpp.o:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.o
-.PHONY : test_wal.cpp.o
-
-test_wal.i: test_wal.cpp.i
-.PHONY : test_wal.i
-
-# target to preprocess a source file
-test_wal.cpp.i:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.i
-.PHONY : test_wal.cpp.i
-
-test_wal.s: test_wal.cpp.s
-.PHONY : test_wal.s
-
-# target to generate assembly for a file
-test_wal.cpp.s:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wal.cpp.s
-.PHONY : test_wal.cpp.s
-
 test_wrrite_batch.o: test_wrrite_batch.cpp.o
 .PHONY : test_wrrite_batch.o
 
@@ -307,30 +283,6 @@ test_wrrite_batch.s: test_wrrite_batch.cpp.s
 test_wrrite_batch.cpp.s:
 	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_wrrite_batch.cpp.s
 .PHONY : test_wrrite_batch.cpp.s
-
-test_xml_conf.o: test_xml_conf.cpp.o
-.PHONY : test_xml_conf.o
-
-# target to build an object file
-test_xml_conf.cpp.o:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.o
-.PHONY : test_xml_conf.cpp.o
-
-test_xml_conf.i: test_xml_conf.cpp.i
-.PHONY : test_xml_conf.i
-
-# target to preprocess a source file
-test_xml_conf.cpp.i:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.i
-.PHONY : test_xml_conf.cpp.i
-
-test_xml_conf.s: test_xml_conf.cpp.s
-.PHONY : test_xml_conf.s
-
-# target to generate assembly for a file
-test_xml_conf.cpp.s:
-	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_xml_conf.cpp.s
-.PHONY : test_xml_conf.cpp.s
 
 # Help Target
 help:
@@ -357,15 +309,9 @@ help:
 	@echo "... test_skiplist.o"
 	@echo "... test_skiplist.i"
 	@echo "... test_skiplist.s"
-	@echo "... test_wal.o"
-	@echo "... test_wal.i"
-	@echo "... test_wal.s"
 	@echo "... test_wrrite_batch.o"
 	@echo "... test_wrrite_batch.i"
 	@echo "... test_wrrite_batch.s"
-	@echo "... test_xml_conf.o"
-	@echo "... test_xml_conf.i"
-	@echo "... test_xml_conf.s"
 .PHONY : help
 
 

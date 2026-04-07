@@ -18,9 +18,24 @@ struct Comparator {
     }
 };
 
+static void start() {
+    // Try multiple config paths: project root first, then parent directory
+    const char* config_paths[] = {"./conf/config.xml", "../conf/config.xml", "../../conf/config.xml"};
+    const char* chosen_path = config_paths[0];
+    for (const char* path : config_paths) {
+        if (access(path, F_OK) == 0) {
+            chosen_path = path;
+            break;
+        }
+    }
+    delta::gDBConfig = std::make_shared<delta::Config>(chosen_path);
+    delta::gDBLogger = std::make_shared<delta::Logger>();
+    delta::gDBLogger->start();
+}
+
 TEST(SkipListTest, test1) {
     std::cout << "=== SkipList Test ===" << std::endl;
-    delta::start();
+    start();
 
     delta::Arena arena;
     Comparator cmp;

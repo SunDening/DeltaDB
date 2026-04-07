@@ -4,7 +4,6 @@
 #include "comparator.h"
 #include "filter_block.h"
 #include "filter_policy.h"
-#include "log.h"
 #include "random_access_file.h"
 #include "sst_format.h"
 #include "two_level_iterator.h"

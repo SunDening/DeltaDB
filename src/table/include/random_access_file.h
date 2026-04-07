@@ -2,9 +2,9 @@
 
 #include <assert.h>
 
-#include "util.h"
-
+#include "config.h"
 #include "status.h"
+#include "util.h"
 
 namespace delta {
 

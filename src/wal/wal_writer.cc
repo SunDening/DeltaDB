@@ -1,5 +1,4 @@
 #include <crc32c/crc32c.h>
-#include <iostream>
 
 #include "coding.h"
 #include "log.h"

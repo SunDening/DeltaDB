@@ -16,9 +16,6 @@ namespace delta {
 
 extern delta::Config::ptr gDBConfig;
 extern delta::Logger::ptr gDBLogger;
-
-void start();
-
 class MemTable;
 class SSTCache;
 class Version;
