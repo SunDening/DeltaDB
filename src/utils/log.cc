@@ -15,7 +15,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "log.h"
+#include <deltadb/utils/log.h>
 
 namespace delta {
 
@@ -25,13 +25,8 @@ extern delta::Logger::ptr gDBLogger;
 static std::atomic_int64_t g_db_log_index{0};
 
 void CoredumpHandler(int signal_no) {
-    // ErrorLog << "progress received invalid signal, will exit";
-    std::cout << "progress received invalid signal, will exit" << std::endl;
-    // gDBLogger->flush();
-
-    if (gDBLogger->getAsyncDBLogger()->thread_.joinable()) {
-        gDBLogger->getAsyncDBLogger()->thread_.join();
-    }
+    static constexpr char kMessage[] = "progress received invalid signal, will exit\n";
+    [[maybe_unused]] const ssize_t ignored = ::write(STDERR_FILENO, kMessage, sizeof(kMessage) - 1);
 
     signal(signal_no, SIG_DFL);
     raise(signal_no);
@@ -195,21 +190,28 @@ AsyncLogger::AsyncLogger(std::string file_name, std::string file_path, int max_s
     : file_name_(file_name), file_path_(file_path), max_size_(max_size), log_type_(logtype) {
     int rt = sem_init(&semaphore_, 0, 0);
     assert(rt == 0);
-    (void)rt;  // ¸æËß±àÒëÆ÷ÎÒÖªµÀËüÃ»±»ÓÃ£¬±ğ±¨¾¯ÁË
+    (void)rt;  // å‘Šè¯‰ç¼–è¯‘å™¨æˆ‘çŸ¥é“å®ƒæ²¡è¢«ç”¨ï¼Œåˆ«æŠ¥è­¦äº†
 
     thread_ = std::thread(&AsyncLogger::execute, this);
     rt = sem_wait(&semaphore_);
     assert(rt == 0);
 }
 
-AsyncLogger::~AsyncLogger() {}
+AsyncLogger::~AsyncLogger() {
+    stop();
+    cv_.notify_one();
+    if (thread_.joinable()) {
+        thread_.join();
+    }
+    sem_destroy(&semaphore_);
+}
 
 void *AsyncLogger::execute(void *arg) {
     AsyncLogger *ptr = reinterpret_cast<AsyncLogger *>(arg);
 
     int rt = sem_post(&ptr->semaphore_);
     assert(rt == 0);
-    (void)rt;  // ¸æËß±àÒëÆ÷ÎÒÖªµÀËüÃ»±»ÓÃ£¬±ğ±¨¾¯ÁË
+    (void)rt;  // å‘Šè¯‰ç¼–è¯‘å™¨æˆ‘çŸ¥é“å®ƒæ²¡è¢«ç”¨ï¼Œåˆ«æŠ¥è­¦äº†
 
     while (1) {
         std::vector<std::string> tmp;
@@ -244,16 +246,16 @@ void *AsyncLogger::execute(void *arg) {
             ptr->need_reopen_ = true;
         }
 
-        // È·±£ÈÕÖ¾ËùÔÚÄ¿Â¼´æÔÚ
+        // ç¡®ä¿æ—¥å¿—æ‰€åœ¨ç›®å½•å­˜åœ¨
         namespace fs = std::filesystem;
 
-        // ¼ì²éÂ·¾¶ÊÇ·ñ´æÔÚ£¬²»´æÔÚÔò´´½¨£¨°üÀ¨¶à¼¶Ä¿Â¼£©
+        // æ£€æŸ¥è·¯å¾„æ˜¯å¦å­˜åœ¨ï¼Œä¸å­˜åœ¨åˆ™åˆ›å»ºï¼ˆåŒ…æ‹¬å¤šçº§ç›®å½•ï¼‰
         if (!fs::exists(ptr->file_path_)) {
             try {
-                fs::create_directories(ptr->file_path_);  // µİ¹é´´½¨ËùÓĞÈ±Ê§µÄ¸¸Ä¿Â¼
+                fs::create_directories(ptr->file_path_);  // é€’å½’åˆ›å»ºæ‰€æœ‰ç¼ºå¤±çš„çˆ¶ç›®å½•
             } catch (const fs::filesystem_error &e) {
-                // ¿ÉÑ¡£º¼ÇÂ¼´íÎó»òÅ×³öÒì³£
-                throw std::runtime_error(std::format("ÈÕÖ¾Ä¿Â¼ {} ²»´æÔÚ. ", ptr->file_path_) + std::string(e.what()));
+                // å¯é€‰ï¼šè®°å½•é”™è¯¯æˆ–æŠ›å‡ºå¼‚å¸¸
+                throw std::runtime_error(std::format("æ—¥å¿—ç›®å½• {} ä¸å­˜åœ¨. ", ptr->file_path_) + std::string(e.what()));
             }
         }
 

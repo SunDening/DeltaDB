@@ -1,9 +1,9 @@
 #include <cstdint>
 
-#include "block.h"
-#include "coding.h"
-#include "comparator.h"
-#include "sst_format.h"
+#include <deltadb/table/block.h>
+#include <deltadb/table/sst_format.h>
+#include <deltadb/utils/coding.h>
+#include <deltadb/utils/comparator.h>
 
 namespace delta {
 

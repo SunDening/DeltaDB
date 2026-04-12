@@ -1,7 +1,7 @@
-#include "config.h"
-#include "cache.h"
-#include "comparator.h"
-#include "dbformat.h"
+#include <deltadb/table/cache.h>
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/config.h>
+#include <deltadb/utils/dbformat.h>
 
 namespace delta {
 

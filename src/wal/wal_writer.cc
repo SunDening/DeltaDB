@@ -1,8 +1,8 @@
 #include <crc32c/crc32c.h>
 
-#include "coding.h"
-#include "log.h"
-#include "wal_writer.h"
+#include <deltadb/utils/coding.h>
+#include <deltadb/utils/log.h>
+#include <deltadb/wal/wal_writer.h>
 
 namespace delta {
 

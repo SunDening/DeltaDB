@@ -1,15 +1,15 @@
 #include <algorithm>
 #include <cstdint>
 
-#include "coding.h"
-#include "filename.h"
-#include "iter_merger.h"
-#include "memtable.h"
-#include "sst_cache.h"
-#include "two_level_iterator.h"
-#include "version_set.h"
-#include "wal_reader.h"
-#include "wal_writer.h"
+#include <deltadb/db/filename.h>
+#include <deltadb/db/memtable.h>
+#include <deltadb/db/version_set.h>
+#include <deltadb/table/iter_merger.h>
+#include <deltadb/table/sst_cache.h>
+#include <deltadb/table/two_level_iterator.h>
+#include <deltadb/utils/coding.h>
+#include <deltadb/wal/wal_reader.h>
+#include <deltadb/wal/wal_writer.h>
 
 namespace delta {
 
@@ -695,12 +695,30 @@ VersionSet::VersionSet(const std::string& dbname, SSTCache* sst_cache, const Int
       manifest_log_(nullptr),
       dummy_versions_(this),
       current_(nullptr) {
-    AppendVersion(new Version(this));
+    // 创建初始版本，但不通过 AppendVersion 设置 current_
+    Version* initial = new Version(this);
+    current_ = initial;
+    current_->Ref();  // refs_ = 1
+
+    // 加入双向链表
+    current_->prev_ = &dummy_versions_;
+    current_->next_ = &dummy_versions_;
+    dummy_versions_.prev_ = current_;
+    dummy_versions_.next_ = current_;
 }
 
 VersionSet::~VersionSet() {
-    current_->Unref();
-    assert(dummy_versions_.next_ == &dummy_versions_);
+    // 先解除 current_ 的引用（但不一定删除，因为可能还有其他引用）
+    if (current_ != nullptr) {
+        current_->Unref();
+    }
+
+    // 确保所有版本都已从链表中移除
+    while (dummy_versions_.next_ != &dummy_versions_) {
+        Version* v = dummy_versions_.next_;
+        v->Unref();
+    }
+
     delete manifest_log_;
     delete manifest_;
 }

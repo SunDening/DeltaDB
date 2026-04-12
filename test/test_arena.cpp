@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "arena.h"
-#include "db_impl.h"
+#include <deltadb/db/db_impl.h>
+#include <deltadb/utils/arena.h>
 
 using namespace delta;
 

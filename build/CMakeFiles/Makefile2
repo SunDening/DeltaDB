@@ -67,8 +67,6 @@ all: src/utils/all
 all: src/wal/all
 all: src/table/all
 all: src/db/all
-all: app/all
-all: test/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -76,8 +74,6 @@ preinstall: src/utils/preinstall
 preinstall: src/wal/preinstall
 preinstall: src/table/preinstall
 preinstall: src/db/preinstall
-preinstall: app/preinstall
-preinstall: test/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
@@ -85,24 +81,7 @@ clean: src/utils/clean
 clean: src/wal/clean
 clean: src/table/clean
 clean: src/db/clean
-clean: app/clean
-clean: test/clean
 .PHONY : clean
-
-#=============================================================================
-# Directory level rules for directory app
-
-# Recursive "all" directory target.
-app/all: app/CMakeFiles/deltadb.dir/all
-.PHONY : app/all
-
-# Recursive "preinstall" directory target.
-app/preinstall:
-.PHONY : app/preinstall
-
-# Recursive "clean" directory target.
-app/clean: app/CMakeFiles/deltadb.dir/clean
-.PHONY : app/clean
 
 #=============================================================================
 # Directory level rules for directory src/db
@@ -165,28 +144,13 @@ src/wal/clean: src/wal/CMakeFiles/wal.dir/clean
 .PHONY : src/wal/clean
 
 #=============================================================================
-# Directory level rules for directory test
-
-# Recursive "all" directory target.
-test/all: test/CMakeFiles/my_test.dir/all
-.PHONY : test/all
-
-# Recursive "preinstall" directory target.
-test/preinstall:
-.PHONY : test/preinstall
-
-# Recursive "clean" directory target.
-test/clean: test/CMakeFiles/my_test.dir/clean
-.PHONY : test/clean
-
-#=============================================================================
 # Target rules for target src/utils/CMakeFiles/utils.dir
 
 # All Build rule for target.
 src/utils/CMakeFiles/utils.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/utils.dir/build.make src/utils/CMakeFiles/utils.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/utils.dir/build.make src/utils/CMakeFiles/utils.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=29,30,31,32,33,34,35,36,37,38 "Built target utils"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=20,21,22,23,24,25,26,27,28,29 "Built target utils"
 .PHONY : src/utils/CMakeFiles/utils.dir/all
 
 # Build rule for subdir invocation for target.
@@ -212,7 +176,7 @@ src/utils/CMakeFiles/utils.dir/clean:
 src/wal/CMakeFiles/wal.dir/all: src/utils/CMakeFiles/utils.dir/all
 	$(MAKE) $(MAKESILENT) -f src/wal/CMakeFiles/wal.dir/build.make src/wal/CMakeFiles/wal.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/wal/CMakeFiles/wal.dir/build.make src/wal/CMakeFiles/wal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=39,40,41,42,43 "Built target wal"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=30,31,32,33,34 "Built target wal"
 .PHONY : src/wal/CMakeFiles/wal.dir/all
 
 # Build rule for subdir invocation for target.
@@ -239,7 +203,7 @@ src/table/CMakeFiles/table.dir/all: src/utils/CMakeFiles/utils.dir/all
 src/table/CMakeFiles/table.dir/all: src/wal/CMakeFiles/wal.dir/all
 	$(MAKE) $(MAKESILENT) -f src/table/CMakeFiles/table.dir/build.make src/table/CMakeFiles/table.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/table/CMakeFiles/table.dir/build.make src/table/CMakeFiles/table.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=18,19,20,21,22,23,24,25,26,27,28 "Built target table"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=9,10,11,12,13,14,15,16,17,18,19 "Built target table"
 .PHONY : src/table/CMakeFiles/table.dir/all
 
 # Build rule for subdir invocation for target.
@@ -285,64 +249,6 @@ db: src/db/CMakeFiles/db.dir/rule
 src/db/CMakeFiles/db.dir/clean:
 	$(MAKE) $(MAKESILENT) -f src/db/CMakeFiles/db.dir/build.make src/db/CMakeFiles/db.dir/clean
 .PHONY : src/db/CMakeFiles/db.dir/clean
-
-#=============================================================================
-# Target rules for target app/CMakeFiles/deltadb.dir
-
-# All Build rule for target.
-app/CMakeFiles/deltadb.dir/all: src/utils/CMakeFiles/utils.dir/all
-app/CMakeFiles/deltadb.dir/all: src/wal/CMakeFiles/wal.dir/all
-app/CMakeFiles/deltadb.dir/all: src/table/CMakeFiles/table.dir/all
-app/CMakeFiles/deltadb.dir/all: src/db/CMakeFiles/db.dir/all
-	$(MAKE) $(MAKESILENT) -f app/CMakeFiles/deltadb.dir/build.make app/CMakeFiles/deltadb.dir/depend
-	$(MAKE) $(MAKESILENT) -f app/CMakeFiles/deltadb.dir/build.make app/CMakeFiles/deltadb.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=9,10 "Built target deltadb"
-.PHONY : app/CMakeFiles/deltadb.dir/all
-
-# Build rule for subdir invocation for target.
-app/CMakeFiles/deltadb.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles 36
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 app/CMakeFiles/deltadb.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles 0
-.PHONY : app/CMakeFiles/deltadb.dir/rule
-
-# Convenience name for target.
-deltadb: app/CMakeFiles/deltadb.dir/rule
-.PHONY : deltadb
-
-# clean rule for target.
-app/CMakeFiles/deltadb.dir/clean:
-	$(MAKE) $(MAKESILENT) -f app/CMakeFiles/deltadb.dir/build.make app/CMakeFiles/deltadb.dir/clean
-.PHONY : app/CMakeFiles/deltadb.dir/clean
-
-#=============================================================================
-# Target rules for target test/CMakeFiles/my_test.dir
-
-# All Build rule for target.
-test/CMakeFiles/my_test.dir/all: src/utils/CMakeFiles/utils.dir/all
-test/CMakeFiles/my_test.dir/all: src/wal/CMakeFiles/wal.dir/all
-test/CMakeFiles/my_test.dir/all: src/table/CMakeFiles/table.dir/all
-test/CMakeFiles/my_test.dir/all: src/db/CMakeFiles/db.dir/all
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/depend
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles --progress-num=11,12,13,14,15,16,17 "Built target my_test"
-.PHONY : test/CMakeFiles/my_test.dir/all
-
-# Build rule for subdir invocation for target.
-test/CMakeFiles/my_test.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles 41
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test/CMakeFiles/my_test.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles 0
-.PHONY : test/CMakeFiles/my_test.dir/rule
-
-# Convenience name for target.
-my_test: test/CMakeFiles/my_test.dir/rule
-.PHONY : my_test
-
-# clean rule for target.
-test/CMakeFiles/my_test.dir/clean:
-	$(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/clean
-.PHONY : test/CMakeFiles/my_test.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

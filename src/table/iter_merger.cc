@@ -1,7 +1,7 @@
-#include "iter_merger.h"
-#include "comparator.h"
-#include "iterator.h"
-#include "iterator_wrapper.h"
+#include <deltadb/table/iter_merger.h>
+#include <deltadb/table/iterator_wrapper.h>
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/iterator.h>
 
 namespace delta {
 

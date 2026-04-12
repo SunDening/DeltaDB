@@ -1,12 +1,12 @@
-#include "table.h"
-#include "block.h"
-#include "cache.h"
-#include "comparator.h"
-#include "filter_block.h"
-#include "filter_policy.h"
-#include "random_access_file.h"
-#include "sst_format.h"
-#include "two_level_iterator.h"
+#include <deltadb/table/block.h>
+#include <deltadb/table/cache.h>
+#include <deltadb/table/filter_block.h>
+#include <deltadb/table/random_access_file.h>
+#include <deltadb/table/sst_format.h>
+#include <deltadb/table/table.h>
+#include <deltadb/table/two_level_iterator.h>
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/filter_policy.h>
 
 namespace delta {
 
@@ -263,7 +263,7 @@ Status Table::InternalGet(const ReadOptions& options, const std::string_view& k,
 }
 
 uint64_t Table::ApproximateOffsetOf(const std::string_view& key) const {
-    Iterator* index_iter = rep_->index_block->NewIterator(gDBConfig->comparator);
+    Iterator* index_iter = rep_->index_block->NewIterator(gDBConfig->internal_comparator);
     index_iter->Seek(key);
     uint64_t result;
 

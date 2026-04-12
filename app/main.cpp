@@ -4,9 +4,9 @@
 #include <string>
 #include <string_view>
 
-#include "db.h"
-#include "db_impl.h"
-#include "iterator.h"
+#include <deltadb/db/db.h>
+#include <deltadb/db/db_impl.h>
+#include <deltadb/utils/iterator.h>
 
 using namespace delta;
 

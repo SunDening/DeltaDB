@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "db_impl.h"
-#include "memtable.h"
-#include "write_batch.h"
-#include "write_batch_internal.h"
+#include <deltadb/db/db_impl.h>
+#include <deltadb/db/memtable.h>
+#include <deltadb/db/write_batch.h>
+#include <deltadb/db/write_batch_internal.h>
 
 using namespace delta;
 

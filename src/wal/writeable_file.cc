@@ -1,7 +1,7 @@
 #include <unistd.h>
 
+#include <deltadb/wal/writable_file.h>
 #include <fcntl.h>
-#include "writable_file.h"
 
 namespace delta {
 

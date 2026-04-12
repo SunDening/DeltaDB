@@ -1,4 +1,4 @@
-#include "dbformat.h"
+#include <deltadb/utils/dbformat.h>
 
 namespace delta {
 
@@ -32,6 +32,14 @@ const char* InternalKeyComparator::Name() const { return "delta.InternalKeyCompa
  * 确保查找时能先看到最新版本的数据
  */
 int InternalKeyComparator::Compare(const std::string_view& akey, const std::string_view& bkey) const {
+    // 防御性检查：确保内部键至少包含 8 字节的 tag
+    if (akey.size() < 8) {
+        return -1;  // 无效键视为较小
+    }
+    if (bkey.size() < 8) {
+        return +1;  // 无效键视为较大
+    }
+
     int r = user_comparator_->Compare(ExtractUserKey(akey), ExtractUserKey(bkey));
     if (r == 0) {
         // 用户键相同

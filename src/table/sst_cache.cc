@@ -1,6 +1,6 @@
-#include "sst_cache.h"
-#include "filename.h"
-#include "random_access_file.h"
+#include <deltadb/db/filename.h>
+#include <deltadb/table/random_access_file.h>
+#include <deltadb/table/sst_cache.h>
 
 namespace delta {
 

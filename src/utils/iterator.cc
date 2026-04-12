@@ -1,6 +1,20 @@
-#include "iterator.h"
+#include <deltadb/utils/iterator.h>
 
 namespace delta {
+
+Iterator::Iterator() = default;
+
+Iterator::~Iterator() {
+    CleanupNode* node = &cleanup_head_;
+    while (node != nullptr && !node->IsEmpty()) {
+        CleanupNode* next = node->next;
+        node->Run();
+        if (node != &cleanup_head_) {
+            delete node;
+        }
+        node = next;
+    }
+}
 
 void Iterator::RegisterCleanup(CleanupFunction func, void* arg1, void* arg2) {
     assert(func != nullptr);

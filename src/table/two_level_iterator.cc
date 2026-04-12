@@ -1,9 +1,9 @@
-#include "two_level_iterator.h"
-#include "block.h"
-#include "sst_format.h"
-#include "table.h"
+#include <deltadb/table/block.h>
+#include <deltadb/table/sst_format.h>
+#include <deltadb/table/table.h>
+#include <deltadb/table/two_level_iterator.h>
 
-#include "iterator_wrapper.h"
+#include <deltadb/table/iterator_wrapper.h>
 
 namespace delta {
 

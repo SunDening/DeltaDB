@@ -1,7 +1,7 @@
-#include "write_batch.h"
-#include "dbformat.h"
-#include "memtable.h"
-#include "write_batch_internal.h"
+#include <deltadb/db/memtable.h>
+#include <deltadb/db/write_batch.h>
+#include <deltadb/db/write_batch_internal.h>
+#include <deltadb/utils/dbformat.h>
 
 namespace delta {
 

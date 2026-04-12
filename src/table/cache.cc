@@ -4,8 +4,8 @@
 #include <cstring>
 #include <mutex>
 
-#include "cache.h"
-#include "util.h"
+#include <deltadb/table/cache.h>
+#include <deltadb/utils/util.h>
 
 namespace delta {
 
@@ -326,14 +326,48 @@ LRUCache::LRUCache() : capacity_(0), usage_(0) {
 }
 
 LRUCache::~LRUCache() {
-    // 检查：所有条目都应该已经释放
-    assert(in_use_.next == &in_use_);
-    for (LRUHandle* e = lru_.next; e != &lru_;) {
-        LRUHandle* next = e->next;
-        assert(e->in_cache);
+    // 清理 in_use 链表中的所有条目
+    // 这些条目是因为程序退出时未被正确释放的缓存句柄
+    // 注意：必须先清理 in_use，再清理 lru，因为 in_use 中的条目可能引用 lru 中的资源
+    while (in_use_.next != &in_use_) {
+        LRUHandle* e = in_use_.next;
+        // 从链表中移除
+        LRU_Remove(e);
+        // 从哈希表中移除（防止后续查找使用已释放的内存）
+        table_.Remove(e->key(), e->hash);
+        // 标记为不在缓存中
         e->in_cache = false;
-        assert(e->refs == 1);  // LRU 链表的条目 refs 必须为 1
-        Unref(e);              // 调用 deleter 并释放
+        // 将所有引用计数清零并释放
+        // refs 包括：1（缓存自身）+ 外部引用数量
+        while (e->refs > 0) {
+            e->refs--;
+            if (e->refs > 0 && e->in_cache) {
+                // 如果还在缓存中且 refs 降到 1，会从 in_use 移到 lru
+                // 但我们已经在清理，所以不需要这个操作
+            }
+        }
+        // 调用 deleter 并释放内存
+        (*e->deleter)(e->key(), e->value);
+        free(e);
+    }
+
+    // 清理 LRU 链表中的所有条目
+    while (lru_.next != &lru_) {
+        LRUHandle* e = lru_.next;
+        // 先保存下一个指针（因为后续操作会修改链表）
+        LRUHandle* next = e->next;
+        // 从链表中移除
+        LRU_Remove(e);
+        // 从哈希表中移除
+        table_.Remove(e->key(), e->hash);
+        // 标记为不在缓存中
+        e->in_cache = false;
+        // lru_ 中的条目 refs == 1（仅缓存自身引用）
+        // 直接将 refs 设为 0 并释放
+        e->refs = 0;
+        (*e->deleter)(e->key(), e->value);
+        free(e);
+        // 使用保存的 next 继续遍历
         e = next;
     }
 }

@@ -1,24 +1,38 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
 
-BUILD_DIR="build"
+set -euo pipefail
 
-# rm -rf output/delta
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="${BUILD_DIR:-${PROJECT_ROOT}/build}"
+BUILD_TYPE="${BUILD_TYPE:-Release}"
 
-# 清理
-if [ -d "$BUILD_DIR" ]; then
-    rm -rf "$BUILD_DIR"/*
+if command -v nproc >/dev/null 2>&1; then
+    JOBS="${JOBS:-$(nproc)}"
+elif command -v getconf >/dev/null 2>&1; then
+    JOBS="${JOBS:-$(getconf _NPROCESSORS_ONLN)}"
 else
-    mkdir -p "$BUILD_DIR"
+    JOBS="${JOBS:-4}"
 fi
 
-cd "$BUILD_DIR"
+rm -rf "${PROJECT_ROOT}/output"/*
 
-# 配置
-cmake .. -DCMAKE_BUILD_TYPE=Release
+if [[ -d "${BUILD_DIR}" ]]; then
+    rm -rf "${BUILD_DIR}"/*
+else
+    mkdir -p "${BUILD_DIR}"
+fi
 
-# 编译
-make -j$(nproc)
+echo "Configuring development build in ${BUILD_DIR} ..."
+echo "  app:   ON"
+echo "  tests: ON"
+cmake -S "${PROJECT_ROOT}" -B "${BUILD_DIR}" \
+    -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" \
+    -DDELTA_DB_BUILD_APP=ON \
+    -DDELTA_DB_BUILD_TESTS=ON
+
+echo "Building DeltaDB app and tests ..."
+cmake --build "${BUILD_DIR}" -j"${JOBS}"
 
 echo "Build complete!"
-echo "Binary: ./build/bin/deltadb"
+echo "App binary:  ${BUILD_DIR}/bin/deltadb"
+echo "Test binary: ${BUILD_DIR}/bin/my_test"

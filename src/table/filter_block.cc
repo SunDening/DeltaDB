@@ -1,8 +1,8 @@
 #include <assert.h>
 
-#include "coding.h"
-#include "filter_block.h"
-#include "filter_policy.h"
+#include <deltadb/table/filter_block.h>
+#include <deltadb/utils/coding.h>
+#include <deltadb/utils/filter_policy.h>
 
 namespace delta {
 

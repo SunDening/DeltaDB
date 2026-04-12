@@ -1,9 +1,9 @@
 #include <cstdint>
 #include <format>
 
-#include "dbformat.h"
-#include "filename.h"
-#include "util.h"
+#include <deltadb/db/filename.h>
+#include <deltadb/utils/dbformat.h>
+#include <deltadb/utils/util.h>
 
 namespace delta {
 

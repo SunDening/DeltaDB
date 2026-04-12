@@ -95,6 +95,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/opt/cmake-3.26.4-linux-x86_64/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(CMAKE_COMMAND) -E cmake_progress_start /home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles /home/knight/cpp/DeltaDB_series/DeltaDB/build/test//CMakeFiles/progress.marks
@@ -236,6 +281,30 @@ test_log.cpp.s:
 	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_log.cpp.s
 .PHONY : test_log.cpp.s
 
+test_resource_cleanup.o: test_resource_cleanup.cpp.o
+.PHONY : test_resource_cleanup.o
+
+# target to build an object file
+test_resource_cleanup.cpp.o:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_resource_cleanup.cpp.o
+.PHONY : test_resource_cleanup.cpp.o
+
+test_resource_cleanup.i: test_resource_cleanup.cpp.i
+.PHONY : test_resource_cleanup.i
+
+# target to preprocess a source file
+test_resource_cleanup.cpp.i:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_resource_cleanup.cpp.i
+.PHONY : test_resource_cleanup.cpp.i
+
+test_resource_cleanup.s: test_resource_cleanup.cpp.s
+.PHONY : test_resource_cleanup.s
+
+# target to generate assembly for a file
+test_resource_cleanup.cpp.s:
+	cd /home/knight/cpp/DeltaDB_series/DeltaDB/build && $(MAKE) $(MAKESILENT) -f test/CMakeFiles/my_test.dir/build.make test/CMakeFiles/my_test.dir/test_resource_cleanup.cpp.s
+.PHONY : test_resource_cleanup.cpp.s
+
 test_skiplist.o: test_skiplist.cpp.o
 .PHONY : test_skiplist.o
 
@@ -291,6 +360,10 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... my_test"
@@ -306,6 +379,9 @@ help:
 	@echo "... test_log.o"
 	@echo "... test_log.i"
 	@echo "... test_log.s"
+	@echo "... test_resource_cleanup.o"
+	@echo "... test_resource_cleanup.i"
+	@echo "... test_resource_cleanup.s"
 	@echo "... test_skiplist.o"
 	@echo "... test_skiplist.i"
 	@echo "... test_skiplist.s"

@@ -1,5 +1,5 @@
-#include "sequential_file.h"
-#include "log.h"
+#include <deltadb/utils/log.h>
+#include <deltadb/wal/sequential_file.h>
 
 namespace delta {
 

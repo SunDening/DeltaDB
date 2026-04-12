@@ -62,14 +62,54 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/src/db/cmake_install.cmake")
 endif()
 
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
-  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/app/cmake_install.cmake")
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/lib/libdb.a")
 endif()
 
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
-  include("/home/knight/cpp/DeltaDB_series/DeltaDB/build/test/cmake_install.cmake")
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/lib/libtable.a")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/lib/libwal.a")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/lib/libutils.a")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/deltadb" TYPE DIRECTORY FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/src/include/deltadb/" FILES_MATCHING REGEX "/[^/]*\\.h$" REGEX "/[^/]*\\.hpp$")
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB/DeltaDBTargets.cmake")
+    file(DIFFERENT _cmake_export_file_changed FILES
+         "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB/DeltaDBTargets.cmake"
+         "/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles/Export/c61ac1cf2d6014cc1bf44952efc615f5/DeltaDBTargets.cmake")
+    if(_cmake_export_file_changed)
+      file(GLOB _cmake_old_config_files "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB/DeltaDBTargets-*.cmake")
+      if(_cmake_old_config_files)
+        string(REPLACE ";" ", " _cmake_old_config_files_text "${_cmake_old_config_files}")
+        message(STATUS "Old export file \"$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB/DeltaDBTargets.cmake\" will be replaced.  Removing files [${_cmake_old_config_files_text}].")
+        unset(_cmake_old_config_files_text)
+        file(REMOVE ${_cmake_old_config_files})
+      endif()
+      unset(_cmake_old_config_files)
+    endif()
+    unset(_cmake_export_file_changed)
+  endif()
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB" TYPE FILE FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles/Export/c61ac1cf2d6014cc1bf44952efc615f5/DeltaDBTargets.cmake")
+  if(CMAKE_INSTALL_CONFIG_NAME MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB" TYPE FILE FILES "/home/knight/cpp/DeltaDB_series/DeltaDB/build/CMakeFiles/Export/c61ac1cf2d6014cc1bf44952efc615f5/DeltaDBTargets-release.cmake")
+  endif()
+endif()
+
+if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/DeltaDB" TYPE FILE FILES
+    "/home/knight/cpp/DeltaDB_series/DeltaDB/build/DeltaDBConfig.cmake"
+    "/home/knight/cpp/DeltaDB_series/DeltaDB/build/DeltaDBConfigVersion.cmake"
+    )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <cstdint>
 
-#include "comparator.h"
-#include "no_destructor.h"
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/no_destructor.h>
 
 namespace delta {
 

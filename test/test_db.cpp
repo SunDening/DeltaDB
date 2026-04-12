@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <random>
 
-#include "db_impl.h"
+#include <deltadb/db/db_impl.h>
 
 using namespace delta;
 

@@ -1,17 +1,17 @@
 #include <crc32c/crc32c.h>
 
-#include "block_builder.h"
-#include "coding.h"
-#include "dbformat.h"
-#include "filename.h"
-#include "filter_block.h"
-#include "filter_policy.h"
-#include "iterator.h"
-#include "sst_builder.h"
-#include "sst_cache.h"
-#include "sst_format.h"
-#include "version_edit.h"
-#include "writable_file.h"
+#include <deltadb/db/filename.h>
+#include <deltadb/db/version_edit.h>
+#include <deltadb/table/block_builder.h>
+#include <deltadb/table/filter_block.h>
+#include <deltadb/table/sst_builder.h>
+#include <deltadb/table/sst_cache.h>
+#include <deltadb/table/sst_format.h>
+#include <deltadb/utils/coding.h>
+#include <deltadb/utils/dbformat.h>
+#include <deltadb/utils/filter_policy.h>
+#include <deltadb/utils/iterator.h>
+#include <deltadb/wal/writable_file.h>
 
 namespace delta {
 
@@ -154,16 +154,15 @@ void SSTBuilder::Add(const std::string_view& key, const std::string_view& value)
     assert(!r->closed);
     if (!ok()) return;
     if (r->entries_num > 0) {
-        // 确保键单调递增
-        assert(gDBConfig->comparator->Compare(key, std::string_view(r->last_key)) > 0);
+        // 确保键单调递增（使用 Internal Key Comparator，因为 key 是内部键）
+        assert(gDBConfig->internal_comparator->Compare(key, std::string_view(r->last_key)) > 0);
     }
-
 
     // 如果有待处理的索引项，先写入索引
     if (r->pending_index_entry) {
         assert(r->data_block.empty());
         // 使用最短分隔符作为索引键（优化索引空间）
-        gDBConfig->comparator->FindShortestSeparator(&r->last_key, key);
+        gDBConfig->internal_comparator->FindShortestSeparator(&r->last_key, key);
         std::string handle_encoding;
         r->pending_handle.EncodeTo(&handle_encoding);
         r->index_block.Add(r->last_key, std::string_view(handle_encoding));
@@ -303,7 +302,7 @@ Status SSTBuilder::Finish() {
     if (ok()) {
         // 处理最后一个待处理的索引项
         if (r->pending_index_entry) {
-            gDBConfig->comparator->FindShortSuccessor(&r->last_key);
+            gDBConfig->internal_comparator->FindShortSuccessor(&r->last_key);
             std::string handle_encoding;
             r->pending_handle.EncodeTo(&handle_encoding);
             r->index_block.Add(r->last_key, std::string_view(handle_encoding));

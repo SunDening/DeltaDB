@@ -1,10 +1,10 @@
 #include <algorithm>
 #include <cassert>
 
-#include "block_builder.h"
-#include "comparator.h"
-#include "coding.h"
-#include "config.h"
+#include <deltadb/table/block_builder.h>
+#include <deltadb/utils/coding.h>
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/config.h>
 
 namespace delta {
 
@@ -45,7 +45,7 @@ size_t BlockBuilder::CurrentSizeEstimate() const {
 
 std::string_view BlockBuilder::Finish() {
     // 追加重启点数组
-    for (size_t i=0; i<restarts_.size(); i++) {
+    for (size_t i = 0; i < restarts_.size(); i++) {
         PutFixed32(&buffer_, restarts_[i]);
     }
     // 写入重启点数量
@@ -59,8 +59,8 @@ void BlockBuilder::Add(const std::string_view& key, const std::string_view& valu
     std::string_view last_key_piece(last_key_);
     assert(!finished_);
     assert(counter_ <= gDBConfig->block_restart_internal);
-    // 确保键按字典序排列
-    assert(buffer_.empty() || gDBConfig->comparator->Compare(key, last_key_piece) > 0);
+    // 确保键按字典序排列（使用 Internal Key Comparator）
+    assert(buffer_.empty() || gDBConfig->internal_comparator->Compare(key, last_key_piece) > 0);
 
     size_t shared = 0;
     if (counter_ < gDBConfig->block_restart_internal) {
@@ -93,4 +93,4 @@ void BlockBuilder::Add(const std::string_view& key, const std::string_view& valu
     counter_++;
 }
 
-}
+}  // namespace delta

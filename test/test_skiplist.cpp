@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "comparator.h"
-#include "db_impl.h"
-#include "skiplist.h"
+#include <deltadb/db/db_impl.h>
+#include <deltadb/utils/comparator.h>
+#include <deltadb/utils/skiplist.h>
 
 typedef std::string Key;
 

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "filename.h"
+#include <deltadb/db/filename.h>
 
 using namespace delta;
 

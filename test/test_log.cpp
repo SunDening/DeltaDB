@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 #include <memory>
 
-#include "config.h"
-#include "db_impl.h"
-#include "log.h"
-#include "util.h"
+#include <deltadb/db/db_impl.h>
+#include <deltadb/utils/config.h>
+#include <deltadb/utils/log.h>
+#include <deltadb/utils/util.h>
 
 using namespace delta;
 

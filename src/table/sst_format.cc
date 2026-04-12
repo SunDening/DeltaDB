@@ -1,9 +1,9 @@
 #include <crc32c/crc32c.h>
 
-#include "block.h"
-#include "coding.h"
-#include "random_access_file.h"
-#include "sst_format.h"
+#include <deltadb/table/block.h>
+#include <deltadb/table/random_access_file.h>
+#include <deltadb/table/sst_format.h>
+#include <deltadb/utils/coding.h>
 
 namespace delta {
 
