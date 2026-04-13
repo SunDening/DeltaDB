@@ -9,7 +9,7 @@ static const int kBlockSize = 4096;  // 每个块的大小，通常为4KB
  * 初始状态：没有分配任何块
  * alloc_ptr_ 和 alloc_bytes_remaining_ 都指向空状态，表示当前没有可用的内存块
  */
-Arena::Arena() : alloc_ptr_(nullptr), alloc_bytes_remaining_(0), memory_usage_(0) { InfoLog << "Arena init complate."; }
+Arena::Arena() : alloc_ptr_(nullptr), alloc_bytes_remaining_(0), memory_usage_(0) { DebugLog << "Arena init complate."; }
 
 /**
  * 不释放单个对象：只释放整个块

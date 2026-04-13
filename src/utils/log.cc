@@ -259,15 +259,16 @@ void *AsyncLogger::execute(void *arg) {
             }
         }
 
-        std::string full_file_name = std::format("{}{}_{}_{}_{}.log", ptr->file_path_, ptr->file_name_, ptr->date_,
-                                                 LogTypeToString(ptr->log_type_), ptr->no_);
+        fs::path full_file_name =
+            fs::path(ptr->file_path_) /
+            std::format("{}_{}_{}_{}.log", ptr->file_name_, ptr->date_, LogTypeToString(ptr->log_type_), ptr->no_);
 
         if (ptr->need_reopen_) {
             if (ptr->file_handle_) {
                 fclose(ptr->file_handle_);
             }
 
-            ptr->file_handle_ = fopen(full_file_name.c_str(), "a");
+            ptr->file_handle_ = fopen(full_file_name.string().c_str(), "a");
             if (ptr->file_handle_ == nullptr) {
                 printf("open fail errno = %d reason = %s \n", errno, strerror(errno));
             }
@@ -279,15 +280,16 @@ void *AsyncLogger::execute(void *arg) {
 
             // single log file over max size
             ptr->no_++;
-            full_file_name = std::format("{}{}_{}_{}_{}.log", ptr->file_path_, ptr->file_name_, ptr->date_,
-                                         LogTypeToString(ptr->log_type_), ptr->no_);
+            full_file_name =
+                fs::path(ptr->file_path_) /
+                std::format("{}_{}_{}_{}.log", ptr->file_name_, ptr->date_, LogTypeToString(ptr->log_type_), ptr->no_);
 
             ptr->file_handle_ = fopen(full_file_name.c_str(), "a");
             ptr->need_reopen_ = false;
         }
 
         if (!ptr->file_handle_) {
-            printf("open log file %s error!", full_file_name.c_str());
+            printf("open log file %s error!", full_file_name.string().c_str());
         }
 
         for (auto i : tmp) {

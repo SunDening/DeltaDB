@@ -59,7 +59,7 @@ class SnapshotImpl : public Snapshot {
 
    public:
     SnapshotImpl(SequenceNumber sequence_number) : sequence_number_(sequence_number) {
-        InfoLog << std::format("SnapshotImpl init, sequence_number_: {}", sequence_number_);
+        DebugLog << std::format("SnapshotImpl init, sequence_number_: {}", sequence_number_);
     }
 
     SequenceNumber sequence_number() const { return sequence_number_; }

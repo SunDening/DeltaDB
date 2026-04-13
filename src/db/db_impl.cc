@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <chrono>
 #include <mutex>
 
 #include <deltadb/db/db.h>
@@ -103,6 +104,69 @@ void SanitizeConfig(const std::string& /*dbname*/, const InternalKeyComparator* 
  * @brief 计算表缓存大小（从最大打开文件数中预留 10 个给其他文件）
  */
 static int SSTCacheSize() { return gDBConfig->max_open_files - kNonSSTCacheFilesNum; }
+
+constexpr uint64_t kSlowGetWarnMicros = 5 * 1000;
+constexpr uint64_t kSlowWriteWarnMicros = 5 * 1000;
+constexpr uint64_t kSlowCompactionWarnMicros = 50 * 1000;
+constexpr std::size_t kLogKeyPreviewLen = 48;
+
+std::string PreviewKey(std::string_view key) {
+    if (key.size() <= kLogKeyPreviewLen) {
+        return std::string(key);
+    }
+    return std::string(key.substr(0, kLogKeyPreviewLen)) + "...";
+}
+
+struct BatchLogSummary {
+    int total{0};
+    int puts{0};
+    int deletes{0};
+    std::size_t payload_bytes{0};
+    std::string first_key;
+    std::string first_op{"none"};
+};
+
+class BatchLogSummaryHandler : public WriteBatch::Handler {
+   public:
+    explicit BatchLogSummaryHandler(BatchLogSummary* summary) : summary_(summary) {}
+
+    void Put(const std::string_view& key, const std::string_view& value) override {
+        summary_->total++;
+        summary_->puts++;
+        summary_->payload_bytes += key.size() + value.size();
+        if (summary_->first_key.empty()) {
+            summary_->first_key = PreviewKey(key);
+            summary_->first_op = "put";
+        }
+    }
+
+    void Delete(const std::string_view& key) override {
+        summary_->total++;
+        summary_->deletes++;
+        summary_->payload_bytes += key.size();
+        if (summary_->first_key.empty()) {
+            summary_->first_key = PreviewKey(key);
+            summary_->first_op = "delete";
+        }
+    }
+
+   private:
+    BatchLogSummary* summary_;
+};
+
+BatchLogSummary SummarizeBatch(const WriteBatch* batch) {
+    BatchLogSummary summary;
+    if (batch == nullptr) {
+        return summary;
+    }
+
+    BatchLogSummaryHandler handler(&summary);
+    const Status status = batch->Iterate(&handler);
+    if (!status.ok()) {
+        summary.first_op = "corrupted";
+    }
+    return summary;
+}
 
 DBImpl::DBImpl(const std::string& dbname)
     : internal_comparator_(gDBConfig->comparator),
@@ -474,8 +538,12 @@ Status DBImpl::WriteToLevel0(MemTable* mem, VersionEdit* edit, Version* base) {
 
 void DBImpl::CompactMemTable() {
     assert(imm_ != nullptr);
+    const uint64_t start_micros = NowMicros();
+    const uint64_t imm_bytes = imm_->ApproximateMemoryUsage();
+    InfoLog << std::format("Memtable compaction start: imm_bytes={}, wal_number={}",
+                           static_cast<unsigned long long>(imm_bytes),
+                           static_cast<unsigned long long>(wal_file_number_));
 
-    // 将 MemTable 内容保存为新的 SST 文件
     VersionEdit edit;
     Version* base = versions_->current();
     base->Ref();
@@ -486,7 +554,6 @@ void DBImpl::CompactMemTable() {
         s = Status::IOError("Deleting DB during memtable compaction");
     }
 
-    // 用生成的 SST 文件替换不可变 MemTable
     if (s.ok()) {
         edit.SetPrevWalNumber(0);
         edit.SetWalNumber(wal_file_number_);
@@ -494,13 +561,27 @@ void DBImpl::CompactMemTable() {
     }
 
     if (s.ok()) {
-        // 提交新状态
         imm_->Unref();
         imm_ = nullptr;
         has_imm_.store(false, std::memory_order_release);
         RemoveObsoleteFiles();
     } else {
         RecordBackgroundError(s);
+    }
+
+    const uint64_t elapsed_micros = NowMicros() - start_micros;
+    if (!s.ok()) {
+        ErrorLog << std::format("Memtable compaction failed: imm_bytes={} elapsed_us={} status={}",
+                                static_cast<unsigned long long>(imm_bytes),
+                                static_cast<unsigned long long>(elapsed_micros), s.ToString());
+    } else if (elapsed_micros >= kSlowCompactionWarnMicros) {
+        WarnLog << std::format("Slow memtable compaction: imm_bytes={} elapsed_us={} status={}",
+                               static_cast<unsigned long long>(imm_bytes),
+                               static_cast<unsigned long long>(elapsed_micros), s.ToString());
+    } else {
+        InfoLog << std::format("Memtable compaction done: imm_bytes={} elapsed_us={} status={}",
+                               static_cast<unsigned long long>(imm_bytes),
+                               static_cast<unsigned long long>(elapsed_micros), s.ToString());
     }
 }
 
@@ -818,8 +899,8 @@ Status DBImpl::InstallCompactionResults(CompactionState* compact) {
     for (size_t i = 0; i < compact->outputs.size(); i++) {
         const CompactionState::Output& out = compact->outputs[i];
         compact->compaction->edit()->AddSST(level + 1, out.sst_number, out.sst_size, out.smallest_k, out.largest_k);
-        InfoLog << std::format("[DEBUG-COMPACT] Adding output file #{} to L{}: smallest={}, largest={}", out.sst_number,
-                               level + 1, out.smallest_k.user_key(), out.largest_k.user_key());
+        DebugLog << std::format("Compaction output file #{} -> L{} smallest={} largest={}", out.sst_number,
+                                level + 1, out.smallest_k.user_key(), out.largest_k.user_key());
     }
     return versions_->LogAndApply(compact->compaction->edit(), &mtx_);
 }
@@ -1041,9 +1122,11 @@ int64_t DBImpl::TEST_MaxNextLevelOverlappingBytes() {
 }
 
 Status DBImpl::Get(const ReadOptions& options, const std::string_view& key, std::string* value) {
+    const uint64_t start_micros = NowMicros();
     std::lock_guard<std::mutex> lock(mtx_);
 
     Status s;
+    std::string source = "unknown";
     SequenceNumber snapshot;
     if (options.snapshot != nullptr) {
         snapshot = static_cast<const SnapshotImpl*>(options.snapshot)->sequence_number();
@@ -1054,7 +1137,6 @@ Status DBImpl::Get(const ReadOptions& options, const std::string_view& key, std:
     MemTable* mem = mem_;
     MemTable* imm = imm_;
     Version* current = versions_->current();
-    // 增加引用计数，防止在读取过程中被删除
     mem->Ref();
     if (imm != nullptr) imm->Ref();
     current->Ref();
@@ -1062,31 +1144,21 @@ Status DBImpl::Get(const ReadOptions& options, const std::string_view& key, std:
     bool have_stat_update = false;
     Version::GetStats stats;
 
-    // 从文件和 MemTable 读取时释放锁
     {
         mtx_.unlock();
         LookupKey lkey(key, snapshot);
-        InfoLog << "Get: memtable entries=" << mem->ApproximateMemoryUsage()
-                << (imm ? " imm=" + std::to_string(imm->ApproximateMemoryUsage()) : "");
-        // 逐级查找
         if (mem->Get(lkey, value, &s)) {
-            InfoLog << "Get: found in mem_ key=" << key << " value=" << *value;
+            source = "mem";
         } else if (imm != nullptr && imm->Get(lkey, value, &s)) {
-            InfoLog << "Get: found in imm_ key=" << key << " value=" << *value;
+            source = "imm";
         } else {
-            InfoLog << "Get: searching SST for key=" << key;
             s = current->Get(options, lkey, value, &stats);
-            if (s.ok()) {
-                InfoLog << "Get: found in SST key=" << key << " value=" << *value;
-            } else {
-                InfoLog << "Get: NOT found in SST key=" << key << " err=" << s.ToString();
-            }
+            source = s.ok() ? "sst" : (s.IsNotFound() ? "not_found" : "sst_error");
             have_stat_update = true;
         }
         mtx_.lock();
     }
 
-    // 如果统计信息更新且需要触发压缩
     if (have_stat_update && current->UpdateStats(stats)) {
         MaybeScheduleCompaction();
     }
@@ -1094,6 +1166,25 @@ Status DBImpl::Get(const ReadOptions& options, const std::string_view& key, std:
     mem->Unref();
     if (imm != nullptr) imm->Unref();
     current->Unref();
+
+    const uint64_t elapsed_micros = NowMicros() - start_micros;
+    const std::size_t value_bytes = s.ok() ? value->size() : 0;
+    if (!s.ok() && !s.IsNotFound()) {
+        ErrorLog << std::format("Get key={} source={} snapshot={} value_bytes={} elapsed_us={} status={}",
+                                PreviewKey(key), source, static_cast<unsigned long long>(snapshot),
+                                static_cast<unsigned long long>(value_bytes),
+                                static_cast<unsigned long long>(elapsed_micros), s.ToString());
+    } else if (elapsed_micros >= kSlowGetWarnMicros) {
+        WarnLog << std::format("Slow Get key={} source={} snapshot={} value_bytes={} elapsed_us={} status={}",
+                               PreviewKey(key), source, static_cast<unsigned long long>(snapshot),
+                               static_cast<unsigned long long>(value_bytes),
+                               static_cast<unsigned long long>(elapsed_micros), s.ToString());
+    } else {
+        InfoLog << std::format("Get key={} source={} snapshot={} value_bytes={} elapsed_us={} status={}",
+                               PreviewKey(key), source, static_cast<unsigned long long>(snapshot),
+                               static_cast<unsigned long long>(value_bytes),
+                               static_cast<unsigned long long>(elapsed_micros), s.ToString());
+    }
 
     return s;
 }
@@ -1105,7 +1196,23 @@ Status DBImpl::Put(const WriteOptions& options, const std::string_view& key, con
 Status DB::Put(const WriteOptions& options, const std::string_view& key, const std::string_view& value) {
     WriteBatch batch;
     batch.Put(key, value);
-    return Write(options, &batch);
+    const uint64_t start_micros = NowMicros();
+    Status status = Write(options, &batch);
+    const uint64_t elapsed_micros = NowMicros() - start_micros;
+    if (!status.ok()) {
+        ErrorLog << std::format("Put key={} value_bytes={} sync={} elapsed_us={} status={}", PreviewKey(key),
+                                static_cast<unsigned long long>(value.size()), options.sync,
+                                static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else if (elapsed_micros >= kSlowWriteWarnMicros) {
+        WarnLog << std::format("Slow Put key={} value_bytes={} sync={} elapsed_us={} status={}", PreviewKey(key),
+                               static_cast<unsigned long long>(value.size()), options.sync,
+                               static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else {
+        InfoLog << std::format("Put key={} value_bytes={} sync={} elapsed_us={} status={}", PreviewKey(key),
+                               static_cast<unsigned long long>(value.size()), options.sync,
+                               static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    }
+    return status;
 }
 
 Status DBImpl::Delete(const WriteOptions& options, const std::string_view& key) { return DB::Delete(options, key); }
@@ -1113,10 +1220,26 @@ Status DBImpl::Delete(const WriteOptions& options, const std::string_view& key) 
 Status DB::Delete(const WriteOptions& options, const std::string_view& key) {
     WriteBatch batch;
     batch.Delete(key);
-    return Write(options, &batch);
+    const uint64_t start_micros = NowMicros();
+    Status status = Write(options, &batch);
+    const uint64_t elapsed_micros = NowMicros() - start_micros;
+    if (!status.ok()) {
+        ErrorLog << std::format("Delete key={} sync={} elapsed_us={} status={}", PreviewKey(key), options.sync,
+                                static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else if (elapsed_micros >= kSlowWriteWarnMicros) {
+        WarnLog << std::format("Slow Delete key={} sync={} elapsed_us={} status={}", PreviewKey(key), options.sync,
+                               static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else {
+        InfoLog << std::format("Delete key={} sync={} elapsed_us={} status={}", PreviewKey(key), options.sync,
+                               static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    }
+    return status;
 }
 
 Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
+    const uint64_t start_micros = NowMicros();
+    const BatchLogSummary batch_summary = SummarizeBatch(updates);
+
     WriteInfo w_info(&mtx_);
     w_info.batch = updates;
     w_info.sync = options.sync;
@@ -1124,7 +1247,6 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
 
     std::lock_guard<std::mutex> lock(mtx_);
     writers_info_.push_back(&w_info);
-    // 等待成为写队列的头部
     while (!w_info.done && &w_info != writers_info_.front()) {
         w_info.cv.Wait();
     }
@@ -1132,29 +1254,25 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
         return w_info.status;
     }
 
-    // 可能需要临时解锁并等待
     Status status = MakeRoomForWrite(updates == nullptr);
     uint64_t last_sequence = versions_->LastSequence();
     WriteInfo* last_write_info = &w_info;
     if (status.ok() && updates != nullptr) {
-        // 构建批处理组（可能包含多个写请求）
         WriteBatch* write_batch = BuildBatchGroup(&last_write_info);
         WriteBatchInternal::SetSequence(write_batch, last_sequence + 1);
         last_sequence += WriteBatchInternal::Count(write_batch);
 
-        // 添加到 wal 并应用到 MemTable
         {
             mtx_.unlock();
             status = wal_writer_->AddRecord(WriteBatchInternal::Contents(write_batch));
             bool sync_error = false;
             if (status.ok() && options.sync) {
-                status = wal_file_->Sync();  // 刷盘到 wal_file
+                status = wal_file_->Sync();
                 if (!status.ok()) {
                     sync_error = true;
                 }
             }
             if (status.ok()) {
-                // 应用到 mem
                 status = WriteBatchInternal::InsertInto(write_batch, mem_);
             }
             mtx_.lock();
@@ -1166,7 +1284,6 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
         versions_->SetLastSequence(last_sequence);
     }
 
-    // 通知所有组内成员写操作完成
     while (true) {
         WriteInfo* ready = writers_info_.front();
         writers_info_.pop_front();
@@ -1178,9 +1295,44 @@ Status DBImpl::Write(const WriteOptions& options, WriteBatch* updates) {
         if (ready == last_write_info) break;
     }
 
-    // 通知写队列的新头部
     if (!writers_info_.empty()) {
         writers_info_.front()->cv.Signal();
+    }
+
+    const uint64_t elapsed_micros = NowMicros() - start_micros;
+    if (updates == nullptr) {
+        if (!status.ok()) {
+            ErrorLog << std::format("Write barrier sync={} elapsed_us={} status={}", options.sync,
+                                    static_cast<unsigned long long>(elapsed_micros), status.ToString());
+        } else if (elapsed_micros >= kSlowWriteWarnMicros) {
+            WarnLog << std::format("Slow write barrier sync={} elapsed_us={} status={}", options.sync,
+                                   static_cast<unsigned long long>(elapsed_micros), status.ToString());
+        }
+        return status;
+    }
+
+    const bool should_info = batch_summary.total > 1 || options.sync;
+    if (!status.ok()) {
+        ErrorLog << std::format(
+            "Write batch total={} puts={} deletes={} payload_bytes={} first_op={} first_key={} sync={} elapsed_us={} status={}",
+            batch_summary.total, batch_summary.puts, batch_summary.deletes,
+            static_cast<unsigned long long>(batch_summary.payload_bytes), batch_summary.first_op,
+            batch_summary.first_key.empty() ? "-" : batch_summary.first_key, options.sync,
+            static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else if (elapsed_micros >= kSlowWriteWarnMicros) {
+        WarnLog << std::format(
+            "Slow Write batch total={} puts={} deletes={} payload_bytes={} first_op={} first_key={} sync={} elapsed_us={} status={}",
+            batch_summary.total, batch_summary.puts, batch_summary.deletes,
+            static_cast<unsigned long long>(batch_summary.payload_bytes), batch_summary.first_op,
+            batch_summary.first_key.empty() ? "-" : batch_summary.first_key, options.sync,
+            static_cast<unsigned long long>(elapsed_micros), status.ToString());
+    } else if (should_info) {
+        InfoLog << std::format(
+            "Write batch total={} puts={} deletes={} payload_bytes={} first_op={} first_key={} sync={} elapsed_us={} status={}",
+            batch_summary.total, batch_summary.puts, batch_summary.deletes,
+            static_cast<unsigned long long>(batch_summary.payload_bytes), batch_summary.first_op,
+            batch_summary.first_key.empty() ? "-" : batch_summary.first_key, options.sync,
+            static_cast<unsigned long long>(elapsed_micros), status.ToString());
     }
 
     return status;
@@ -1255,11 +1407,14 @@ Status DBImpl::MakeRoomForWrite(bool force) {
             break;
         } else if (imm_ != nullptr) {
             // 活跃 mem 已经填满，但前一个仍在压缩，所以等待
-            InfoLog << "Current memtable full; waiting...";
+            WarnLog << std::format("Write stalled: immutable memtable pending compaction, active_mem_bytes={}, imm_bytes={}",
+                                   static_cast<unsigned long long>(mem_->ApproximateMemoryUsage()),
+                                   static_cast<unsigned long long>(imm_->ApproximateMemoryUsage()));
             background_work_finished_signal_.Wait();
         } else if (versions_->SSTNumOfLevel(0) >= gDBConfig->l0_stop_writes_trigger) {
             // Level-0 文件太多了，停止写入等待压缩
-            InfoLog << "Too many L0 files; waiting...";
+            WarnLog << std::format("Write stalled: too many L0 files, l0_files={}, stop_trigger={}",
+                                   versions_->SSTNumOfLevel(0), gDBConfig->l0_stop_writes_trigger);
             background_work_finished_signal_.Wait();
         } else {
             // 尝试切换到新的 MemTable 并触发旧 MemTable 的压缩
@@ -1292,6 +1447,10 @@ Status DBImpl::MakeRoomForWrite(bool force) {
             has_imm_.store(true, std::memory_order_release);
             mem_ = new MemTable(internal_comparator_);
             mem_->Ref();
+            InfoLog << std::format("Rotate memtable and wal: new_wal={}, imm_bytes={}, l0_files={}",
+                                   static_cast<unsigned long long>(new_wal_number),
+                                   static_cast<unsigned long long>(imm_->ApproximateMemoryUsage()),
+                                   versions_->SSTNumOfLevel(0));
             force = false;  // 如果有空间，不强制另一次压缩
             MaybeScheduleCompaction();
         }

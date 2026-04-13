@@ -1337,7 +1337,7 @@ void VersionSet::SetupOtherInputs(Compaction* c) {
 
             if (expanded1.size() == c->inputs_[1].size()) {
                 // inputs[1] 数量不变，扩展成功
-                InfoLog << std::format("Expanding@{} {}+{} ({}+{} bytes) to {}+{} ({}+{} bytes)", level,
+                DebugLog << std::format("Expanding@{} {}+{} ({}+{} bytes) to {}+{} ({}+{} bytes)", level,
                                        c->inputs_[0].size(), c->inputs_[1].size(), inputs0_size, inputs1_size,
                                        expanded0.size(), expanded1.size(), expanded0_size, inputs1_size);
                 smallest_k = new_start;
